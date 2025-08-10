@@ -31,8 +31,6 @@ const dist: Distribution = {
 };
 
 const workStartByDay: Record<string, string> = { Seg: "08:00", Ter: "08:00", Qua: "08:00", Qui: "08:00", Sex: "08:00", Sáb: "00:00", Dom: "00:00" };
-const COMMUTE_MIN = 30;
-const gymStart = "06:40";
 const gymEnd = "08:00";
 const toMin = (t: string) => {
   const [h, m] = t.split(":").map(Number);
@@ -67,20 +65,39 @@ function generateDay(calorias: number, gostaIds: string[], dia: string): DayPlan
     return (pick(base, []) as FoodItem) || base[0];
   };
 
-  // Times with gym constraint and lunch-before-noon rule when applicable
+  // Times base e ajuste por deslocamento
   const times: Record<string, string> = {
-    "Colação": "06:10", // pre-workout snack, ends before 06:40
-    "Café": "08:20",    // post-workout
+    "Colação": "06:10", // pré-treino, termina antes de 06:40
+    "Café": "08:20",    // pós-treino (ajustaremos abaixo conforme deslocamento)
     "Almoço": "12:30",
     "Lanche": "15:30",
     "Jantar": "19:30",
     "Ceia": "21:30",
   };
 
+  // Rotas do dia: Seg/Ter = academia -> trabalho; Qua–Sáb = casa -> trabalho; Dom = sem rota
+  const route: "gym-to-work" | "home-to-work" | "none" =
+    dia === "Seg" || dia === "Ter" ? "gym-to-work" :
+    dia === "Qua" || dia === "Qui" || dia === "Sex" || dia === "Sáb" ? "home-to-work" : "none";
+
+  // Tempos a pé (padrão seguro)
+  const commuteToWorkMin = route === "gym-to-work" ? 12 : route === "home-to-work" ? 20 : 0;
+
   const workStart = workStartByDay[dia] || "08:00";
+
+  // Ajuste do Café conforme deslocamento
+  if (route === "gym-to-work") {
+    const arrival = toMin(gymEnd) + commuteToWorkMin; // saída 08:00 + 12min => chegada ~08:12
+    times["Café"] = toHHMM(arrival + 5); // 5min para chegar/organizar
+  } else if (route === "home-to-work" && toMin(workStart) > 0) {
+    const departure = toMin(workStart) - commuteToWorkMin; // horário de sair de casa
+    times["Café"] = toHHMM(Math.max(toMin("06:10"), departure - 20)); // terminar 20min antes de sair
+  }
+
+  // Regra de almoço antes de 12h quando aplicável, considerando deslocamento do dia
   if (toMin(workStart) >= toMin("12:00")) {
-    const endLimit = toMin("11:59") - COMMUTE_MIN;
-    const start = endLimit - 45; // 45 min for lunch
+    const endLimit = toMin("11:59") - commuteToWorkMin;
+    const start = endLimit - 45; // 45 min para almoço
     const minStart = toMin("10:30");
     times["Almoço"] = toHHMM(Math.max(start, minStart));
   }

@@ -9,6 +9,7 @@ import { FOODS, FoodItem } from "@/data/foods";
 import { toast } from "sonner";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { Drumstick, Wheat, Bean, Leaf, Apple, Milk, Popcorn, CupSoda, Utensils } from "lucide-react";
 
 export type Preferences = {
   versao: number;
@@ -23,6 +24,21 @@ function groupByCategory(items: FoodItem[]) {
     return acc;
   }, {});
 }
+
+const categoryIconMap = {
+  "Proteínas (Animais)": Drumstick,
+  "Carboidratos": Wheat,
+  "Legumes & Verduras": Leaf,
+  "Leguminosas": Beans,
+  "Frutas": Apple,
+  "Gorduras & Complementos": Utensils,
+  "Laticínios": Milk,
+  "Snacks": Popcorn,
+  "Bebidas": CupSoda,
+} as const;
+
+type CatKey = keyof typeof categoryIconMap;
+const getIcon = (categoria: FoodItem["categoria"]) => categoryIconMap[categoria as CatKey] || Utensils;
 
 export default function Onboarding() {
 const [calorias, setCalorias] = useState<number>(1800);
@@ -48,8 +64,8 @@ const handleSave = () => {
     toast.error("Defina calorias entre 1000 e 4000 kcal");
     return;
   }
-  if (gosta.length < 6) {
-    toast.error("Selecione pelo menos 6 alimentos que você gosta");
+  if (gosta.length < 3) {
+    toast.error("Selecione pelo menos 3 alimentos que você gosta");
     return;
   }
   const versaoAnterior = Number(JSON.parse(localStorage.getItem("onboardingPrefs") || "{\"versao\":0}").versao || 0);
@@ -94,18 +110,19 @@ const handleSave = () => {
 
 <Card className="shadow-[var(--shadow-elegant)]">
   <CardHeader>
-    <CardTitle>Alimentos que você gosta (mín. 6)</CardTitle>
+    <CardTitle>Alimentos que você gosta (mín. 3)</CardTitle>
   </CardHeader>
   <CardContent className="space-y-3">
-    <Accordion type="multiple" className="w-full">
+    <Accordion type="single" collapsible className="w-full">
       {Object.entries(byCat).map(([cat, items], idx) => (
         <AccordionItem key={cat} value={`cat-${idx}`}>
-          <AccordionTrigger className="px-2 py-2 text-left font-semibold text-primary">{cat}</AccordionTrigger>
+          <AccordionTrigger className="px-2 py-2 text-left font-semibold text-primary"><span className="inline-flex items-center gap-2">{(() => { const Icon = getIcon(cat as FoodItem["categoria"]); return <Icon size={16} className="text-primary" />; })()} {cat}</span></AccordionTrigger>
           <AccordionContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {items.map((f) => (
                 <label key={f.id} className={`flex items-center gap-3 rounded-md border p-3 transition-colors ${gosta.includes(f.id) ? "border-primary bg-primary/5" : "hover:bg-secondary/50"}`}>
                   <Checkbox checked={gosta.includes(f.id)} onCheckedChange={() => toggleGosta(f.id)} />
+                  {(() => { const Icon = getIcon(f.categoria); return <Icon size={16} className="text-primary" />; })()}
                   <div className="flex-1">
                     <div className="text-sm font-medium">{f.nome}</div>
                     <div className="text-xs text-muted-foreground">
