@@ -9,8 +9,6 @@ import { FOODS, FoodItem } from "@/data/foods";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 
-
-
 type Meal = {
   nome: string;
   itens: FoodItem[];
@@ -52,83 +50,123 @@ function pick<T>(arr: T[], avoidIds: string[]): T | null {
   return options[Math.floor(Math.random() * options.length)];
 }
 
-function generateDay(calorias: number, gostaIds: string[], priorizarFrango: boolean): DayPlan {
+function generateDay(calorias: number, gostaIds: string[], dia: string): DayPlan {
   const liked = FOODS.filter((f) => gostaIds.includes(f.id));
   const affordable = FOODS.filter((f) => f.affordable_flag);
   const pool = liked.length >= 6 ? liked : affordable;
 
+  const by = (categoria: FoodItem["categoria"]) => pool.filter((f) => f.categoria === categoria);
+
   const choose = (categoria: FoodItem["categoria"], preferId?: string) => {
-    const base = pool.filter((f) => f.categoria === categoria);
+    const base = by(categoria);
+    if (!base.length) return null;
     if (preferId) {
       const first = base.find((b) => b.id === preferId) || base[0];
       return first;
     }
-    return pick(base, []) || base[0];
+    return (pick(base, []) as FoodItem) || base[0];
   };
+
+  // Times with gym constraint and lunch-before-noon rule when applicable
+  const times: Record<string, string> = {
+    "Colação": "06:10", // pre-workout snack, ends before 06:40
+    "Café": "08:20",    // post-workout
+    "Almoço": "12:30",
+    "Lanche": "15:30",
+    "Jantar": "19:30",
+    "Ceia": "21:30",
+  };
+
+  const workStart = workStartByDay[dia] || "08:00";
+  if (toMin(workStart) >= toMin("12:00")) {
+    const endLimit = toMin("11:59") - COMMUTE_MIN;
+    const start = endLimit - 45; // 45 min for lunch
+    const minStart = toMin("10:30");
+    times["Almoço"] = toHHMM(Math.max(start, minStart));
+  }
 
   const total = calorias;
   const meals: Meal[] = [];
 
-  // Café
+  // Build items per meal
+  const cafeItens = [choose("Carboidratos"), choose("Frutas"), choose("Laticínios")].filter(Boolean) as FoodItem[];
   meals.push({
     nome: "Café",
-    itens: [choose("Carboidratos"), choose("Frutas"), choose("Laticínios")].filter(Boolean) as FoodItem[],
+    itens: cafeItens,
     calorias: Math.round(total * dist["Café"]),
-    image: chickenImg,
-  });
-  // Colação
-  meals.push({
-    nome: "Colação",
-    itens: [choose("Snacks"), choose("Frutas")].filter(Boolean) as FoodItem[],
-    calorias: Math.round(total * dist["Colação"]),
-    image: chickenImg,
-  });
-  // Almoço
-  meals.push({
-    nome: "Almoço",
-    itens: [
-      choose("Proteínas (Animais)", priorizarFrango ? "proteina_frango" : undefined),
-      choose("Carboidratos"),
-      choose("Leguminosas"),
-      choose("Legumes & Verduras"),
-    ].filter(Boolean) as FoodItem[],
-    calorias: Math.round(total * dist["Almoço"]),
-    image: chickenImg,
-  });
-  // Lanche
-  meals.push({
-    nome: "Lanche",
-    itens: [choose("Carboidratos", "carb_aveia"), choose("Frutas", "fruta_banana")].filter(Boolean) as FoodItem[],
-    calorias: Math.round(total * dist["Lanche"]),
-    image: chickenImg,
-  });
-  // Jantar
-  meals.push({
-    nome: "Jantar",
-    itens: [
-      choose("Proteínas (Animais)", priorizarFrango ? "proteina_frango" : undefined),
-      choose("Carboidratos"),
-      choose("Legumes & Verduras"),
-    ].filter(Boolean) as FoodItem[],
-    calorias: Math.round(total * dist["Jantar"]),
-    image: chickenImg,
-  });
-  // Ceia
-  meals.push({
-    nome: "Ceia",
-    itens: [choose("Snacks")].filter(Boolean) as FoodItem[],
-    calorias: Math.round(total * dist["Ceia"]),
-    image: chickenImg,
+    image: cafeItens[0]?.image_url || by("Carboidratos")[0]?.image_url || "",
+    hora: times["Café"],
   });
 
-  return { dia: "Seg", refeicoes: meals, totalKcal: total };
+  const colacaoItens = [choose("Snacks"), choose("Frutas")].filter(Boolean) as FoodItem[];
+  meals.push({
+    nome: "Colação",
+    itens: colacaoItens,
+    calorias: Math.round(total * dist["Colação"]),
+    image: colacaoItens[0]?.image_url || by("Snacks")[0]?.image_url || "",
+    hora: times["Colação"],
+  });
+
+  // Prefer chicken if available to keep proteins animal-centric
+  const proteins = by("Proteínas (Animais)");
+  const frango = proteins.find((p) => p.id === "proteina_frango") || proteins[0];
+
+  const almocoItens = [
+    frango || choose("Proteínas (Animais)"),
+    choose("Carboidratos"),
+    choose("Leguminosas"),
+    choose("Legumes & Verduras"),
+  ].filter(Boolean) as FoodItem[];
+  meals.push({
+    nome: "Almoço",
+    itens: almocoItens,
+    calorias: Math.round(total * dist["Almoço"]),
+    image: almocoItens[0]?.image_url || frango?.image_url || "",
+    hora: times["Almoço"],
+  });
+
+  const lancheItens = [choose("Carboidratos", "carb_aveia"), choose("Frutas", "fruta_banana")].filter(Boolean) as FoodItem[];
+  meals.push({
+    nome: "Lanche",
+    itens: lancheItens,
+    calorias: Math.round(total * dist["Lanche"]),
+    image: lancheItens[0]?.image_url || by("Carboidratos")[0]?.image_url || "",
+    hora: times["Lanche"],
+  });
+
+  const jantarItens = [
+    frango || choose("Proteínas (Animais)"),
+    choose("Carboidratos"),
+    choose("Legumes & Verduras"),
+  ].filter(Boolean) as FoodItem[];
+  meals.push({
+    nome: "Jantar",
+    itens: jantarItens,
+    calorias: Math.round(total * dist["Jantar"]),
+    image: jantarItens[0]?.image_url || frango?.image_url || "",
+    hora: times["Jantar"],
+  });
+
+  const ceiaItens = [choose("Snacks")].filter(Boolean) as FoodItem[];
+  meals.push({
+    nome: "Ceia",
+    itens: ceiaItens,
+    calorias: Math.round(total * dist["Ceia"]),
+    image: ceiaItens[0]?.image_url || by("Snacks")[0]?.image_url || "",
+    hora: times["Ceia"],
+  });
+
+  // Sort by time ascending
+  meals.sort((a, b) => toMin(a.hora) - toMin(b.hora));
+
+  return { dia, refeicoes: meals, totalKcal: total };
 }
 
 const diasSemana = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"] as const;
 
 export default function Plan() {
-const [prefs, setPrefs] = useState<{ caloriasDiarias: number; gostaIds: string[] } | null>(null);
-const [tab, setTab] = useState<string>("Seg");
+  const [prefs, setPrefs] = useState<{ caloriasDiarias: number; gostaIds: string[] } | null>(null);
+  const [tab, setTab] = useState<string>("Seg");
 
   useEffect(() => {
     const p = localStorage.getItem("onboardingPrefs");
@@ -141,12 +179,12 @@ const [tab, setTab] = useState<string>("Seg");
     setPrefs(parsed);
   }, []);
 
-const plans = useMemo(() => {
-  if (!prefs) return [] as DayPlan[];
-  return diasSemana.map((dia) => (
-    generateDay(prefs.caloriasDiarias, prefs.gostaIds, dia)
-  ));
-}, [prefs]);
+  const plans = useMemo(() => {
+    if (!prefs) return [] as DayPlan[];
+    return diasSemana.map((dia) => (
+      generateDay(prefs.caloriasDiarias, prefs.gostaIds, dia)
+    ));
+  }, [prefs]);
 
   const current = plans.find((d) => d.dia === tab);
 
@@ -182,13 +220,13 @@ const plans = useMemo(() => {
                 <Accordion type="single" collapsible defaultValue="item-0">
                   <AccordionItem value={`item-${idx}`}>
                     <AccordionTrigger className="px-4 py-3">
-<div className="flex items-center gap-3">
-  <img src={meal.image} alt={`${meal.nome} foto ilustrativa`} className="h-10 w-14 object-cover rounded" loading="lazy" />
-  <div className="text-left">
-    <div className="font-medium">{meal.hora} — {meal.nome}</div>
-    <div className="text-xs text-muted-foreground">{meal.calorias} kcal</div>
-  </div>
-</div>
+                      <div className="flex items-center gap-3">
+                        <img src={meal.image} alt={`${meal.nome} foto ilustrativa`} className="h-10 w-14 object-cover rounded" loading="lazy" />
+                        <div className="text-left">
+                          <div className="font-medium">{meal.hora} — {meal.nome}</div>
+                          <div className="text-xs text-muted-foreground">{meal.calorias} kcal</div>
+                        </div>
+                      </div>
                     </AccordionTrigger>
                     <AccordionContent className="px-4 pb-4">
                       <ul className="list-disc pl-5 text-sm space-y-1">
