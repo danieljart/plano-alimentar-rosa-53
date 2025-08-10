@@ -5,17 +5,18 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FOODS, FoodItem } from "@/data/foods";
-import { TEMPLATES } from "@/data/schedules";
+
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 
-import chickenImg from "@/assets/food-chicken.jpg";
+
 
 type Meal = {
   nome: string;
   itens: FoodItem[];
   calorias: number;
   image: string;
+  hora: string;
 };
 
 type DayPlan = { dia: string; refeicoes: Meal[]; totalKcal: number };
@@ -29,6 +30,20 @@ const dist: Distribution = {
   "Lanche": 0.1,
   "Jantar": 0.25,
   "Ceia": 0.05,
+};
+
+const workStartByDay: Record<string, string> = { Seg: "08:00", Ter: "08:00", Qua: "08:00", Qui: "08:00", Sex: "08:00", Sáb: "00:00", Dom: "00:00" };
+const COMMUTE_MIN = 30;
+const gymStart = "06:40";
+const gymEnd = "08:00";
+const toMin = (t: string) => {
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + m;
+};
+const toHHMM = (m: number) => {
+  const h = Math.floor(m / 60);
+  const mm = m % 60;
+  return `${String(h).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
 };
 
 function pick<T>(arr: T[], avoidIds: string[]): T | null {
@@ -112,8 +127,8 @@ function generateDay(calorias: number, gostaIds: string[], priorizarFrango: bool
 const diasSemana = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"] as const;
 
 export default function Plan() {
-  const [prefs, setPrefs] = useState<{ caloriasDiarias: number; gostaIds: string[]; priorizarFrango: boolean; templateId: string } | null>(null);
-  const [tab, setTab] = useState<string>("Seg");
+const [prefs, setPrefs] = useState<{ caloriasDiarias: number; gostaIds: string[] } | null>(null);
+const [tab, setTab] = useState<string>("Seg");
 
   useEffect(() => {
     const p = localStorage.getItem("onboardingPrefs");
@@ -126,13 +141,12 @@ export default function Plan() {
     setPrefs(parsed);
   }, []);
 
-  const plans = useMemo(() => {
-    if (!prefs) return [] as DayPlan[];
-    return diasSemana.map((dia) => ({
-      ...generateDay(prefs.caloriasDiarias, prefs.gostaIds, prefs.priorizarFrango),
-      dia,
-    }));
-  }, [prefs]);
+const plans = useMemo(() => {
+  if (!prefs) return [] as DayPlan[];
+  return diasSemana.map((dia) => (
+    generateDay(prefs.caloriasDiarias, prefs.gostaIds, dia)
+  ));
+}, [prefs]);
 
   const current = plans.find((d) => d.dia === tab);
 
@@ -168,13 +182,13 @@ export default function Plan() {
                 <Accordion type="single" collapsible defaultValue="item-0">
                   <AccordionItem value={`item-${idx}`}>
                     <AccordionTrigger className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <img src={meal.image} alt={`${meal.nome} foto ilustrativa`} className="h-10 w-14 object-cover rounded" loading="lazy" />
-                        <div className="text-left">
-                          <div className="font-medium">{meal.nome}</div>
-                          <div className="text-xs text-muted-foreground">{meal.calorias} kcal</div>
-                        </div>
-                      </div>
+<div className="flex items-center gap-3">
+  <img src={meal.image} alt={`${meal.nome} foto ilustrativa`} className="h-10 w-14 object-cover rounded" loading="lazy" />
+  <div className="text-left">
+    <div className="font-medium">{meal.hora} — {meal.nome}</div>
+    <div className="text-xs text-muted-foreground">{meal.calorias} kcal</div>
+  </div>
+</div>
                     </AccordionTrigger>
                     <AccordionContent className="px-4 pb-4">
                       <ul className="list-disc pl-5 text-sm space-y-1">

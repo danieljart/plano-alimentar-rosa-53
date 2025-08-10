@@ -30,6 +30,16 @@ import chickenImg from "@/assets/food-chicken.jpg";
 import riceBeansImg from "@/assets/food-rice-beans.jpg";
 import oatBananaImg from "@/assets/food-oat-banana.jpg";
 import saladImg from "@/assets/food-salad.jpg";
+import beefImg from "@/assets/food-beef.jpg";
+import porkImg from "@/assets/food-pork.jpg";
+import fishImg from "@/assets/food-fish.jpg";
+import eggsImg from "@/assets/food-eggs.jpg";
+import liverImg from "@/assets/food-liver.jpg";
+import pastaImg from "@/assets/food-pasta.jpg";
+import dairyImg from "@/assets/food-dairy.jpg";
+import popcornImg from "@/assets/food-popcorn.jpg";
+import waterImg from "@/assets/food-water.jpg";
+import coffeeImg from "@/assets/food-coffee.jpg";
 
 export const FOODS: FoodItem[] = [
   // Proteínas (Animais)
@@ -56,7 +66,7 @@ export const FOODS: FoodItem[] = [
     carboidrato_g: 0,
     gordura_g: 12,
     typical_portion_g: 100,
-    image_url: chickenImg,
+    image_url: beefImg,
     alt: "Carne bovina grelhada",
     price_label: "médio",
     affordable_flag: false,
@@ -70,7 +80,7 @@ export const FOODS: FoodItem[] = [
     carboidrato_g: 0,
     gordura_g: 14,
     typical_portion_g: 100,
-    image_url: chickenImg,
+    image_url: porkImg,
     alt: "Carne suína grelhada",
     price_label: "médio",
     affordable_flag: false,
@@ -84,7 +94,7 @@ export const FOODS: FoodItem[] = [
     carboidrato_g: 0,
     gordura_g: 2.7,
     typical_portion_g: 100,
-    image_url: saladImg,
+    image_url: fishImg,
     alt: "Filé de tilápia grelhado",
     price_label: "econômico",
     affordable_flag: true,
@@ -98,7 +108,7 @@ export const FOODS: FoodItem[] = [
     carboidrato_g: 0,
     gordura_g: 13,
     typical_portion_g: 100,
-    image_url: saladImg,
+    image_url: fishImg,
     alt: "Filé de salmão assado",
     price_label: "caro",
     affordable_flag: false,
@@ -112,7 +122,7 @@ export const FOODS: FoodItem[] = [
     carboidrato_g: 1.1,
     gordura_g: 11,
     typical_portion_g: 100,
-    image_url: chickenImg,
+    image_url: eggsImg,
     alt: "Ovos cozidos",
     price_label: "econômico",
     affordable_flag: true,
@@ -126,7 +136,7 @@ export const FOODS: FoodItem[] = [
     carboidrato_g: 0,
     gordura_g: 11.5,
     typical_portion_g: 100,
-    image_url: saladImg,
+    image_url: fishImg,
     alt: "Sardinha grelhada",
     price_label: "econômico",
     affordable_flag: true,
@@ -140,7 +150,7 @@ export const FOODS: FoodItem[] = [
     carboidrato_g: 3.9,
     gordura_g: 4.8,
     typical_portion_g: 100,
-    image_url: saladImg,
+    image_url: liverImg,
     alt: "Fígado acebolado",
     price_label: "econômico",
     affordable_flag: true,
@@ -184,7 +194,7 @@ export const FOODS: FoodItem[] = [
     carboidrato_g: 27,
     gordura_g: 0.9,
     typical_portion_g: 100,
-    image_url: saladImg,
+    image_url: pastaImg,
     alt: "Macarrão integral",
     price_label: "médio",
     affordable_flag: true,
@@ -291,14 +301,14 @@ export const FOODS: FoodItem[] = [
   { id: "gord_chia", categoria: "Gorduras & Complementos", nome: "Sementes de chia", calorias_por_porção: 486, proteína_g: 16, carboidrato_g: 42, gordura_g: 31, typical_portion_g: 100, image_url: saladImg, alt: "Sementes de chia", price_label: "médio", affordable_flag: true },
 
   // Laticínios
-  { id: "lat_leite", categoria: "Laticínios", nome: "Leite", calorias_por_porção: 61, proteína_g: 3.2, carboidrato_g: 4.8, gordura_g: 3.3, typical_portion_g: 100, image_url: oatBananaImg, alt: "Leite", price_label: "médio", affordable_flag: true, lactose: true },
-  { id: "lat_iogurte", categoria: "Laticínios", nome: "Iogurte natural", calorias_por_porção: 63, proteína_g: 5.3, carboidrato_g: 7, gordura_g: 1.7, typical_portion_g: 100, image_url: oatBananaImg, alt: "Iogurte natural", price_label: "médio", affordable_flag: true, lactose: true },
+  { id: "lat_leite", categoria: "Laticínios", nome: "Leite", calorias_por_porção: 61, proteína_g: 3.2, carboidrato_g: 4.8, gordura_g: 3.3, typical_portion_g: 100, image_url: dairyImg, alt: "Leite", price_label: "médio", affordable_flag: true, lactose: true },
+  { id: "lat_iogurte", categoria: "Laticínios", nome: "Iogurte natural", calorias_por_porção: 63, proteína_g: 5.3, carboidrato_g: 7, gordura_g: 1.7, typical_portion_g: 100, image_url: dairyImg, alt: "Iogurte natural", price_label: "médio", affordable_flag: true, lactose: true },
 
   // Snacks
-  { id: "snack_pipoca", categoria: "Snacks", nome: "Pipoca (sem óleo)", calorias_por_porção: 387, proteína_g: 13, carboidrato_g: 78, gordura_g: 4.5, typical_portion_g: 100, image_url: saladImg, alt: "Pipoca", price_label: "econômico", affordable_flag: true },
-  { id: "snack_ovos_cozidos", categoria: "Snacks", nome: "Ovos cozidos", calorias_por_porção: 155, proteína_g: 13, carboidrato_g: 1.1, gordura_g: 11, typical_portion_g: 100, image_url: chickenImg, alt: "Ovos cozidos", price_label: "econômico", affordable_flag: true },
+  { id: "snack_pipoca", categoria: "Snacks", nome: "Pipoca (sem óleo)", calorias_por_porção: 387, proteína_g: 13, carboidrato_g: 78, gordura_g: 4.5, typical_portion_g: 100, image_url: popcornImg, alt: "Pipoca", price_label: "econômico", affordable_flag: true },
+  { id: "snack_ovos_cozidos", categoria: "Snacks", nome: "Ovos cozidos", calorias_por_porção: 155, proteína_g: 13, carboidrato_g: 1.1, gordura_g: 11, typical_portion_g: 100, image_url: eggsImg, alt: "Ovos cozidos", price_label: "econômico", affordable_flag: true },
 
   // Bebidas
-  { id: "bebida_agua", categoria: "Bebidas", nome: "Água", calorias_por_porção: 0, proteína_g: 0, carboidrato_g: 0, gordura_g: 0, typical_portion_g: 250, image_url: saladImg, alt: "Copo de água", price_label: "econômico", affordable_flag: true },
-  { id: "bebida_cafe", categoria: "Bebidas", nome: "Café sem açúcar", calorias_por_porção: 2, proteína_g: 0.3, carboidrato_g: 0, gordura_g: 0, typical_portion_g: 200, image_url: saladImg, alt: "Xícara de café", price_label: "econômico", affordable_flag: true },
+  { id: "bebida_agua", categoria: "Bebidas", nome: "Água", calorias_por_porção: 0, proteína_g: 0, carboidrato_g: 0, gordura_g: 0, typical_portion_g: 250, image_url: waterImg, alt: "Copo de água", price_label: "econômico", affordable_flag: true },
+  { id: "bebida_cafe", categoria: "Bebidas", nome: "Café sem açúcar", calorias_por_porção: 2, proteína_g: 0.3, carboidrato_g: 0, gordura_g: 0, typical_portion_g: 200, image_url: coffeeImg, alt: "Xícara de café", price_label: "econômico", affordable_flag: true },
 ];
