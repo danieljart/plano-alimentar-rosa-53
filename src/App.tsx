@@ -12,6 +12,7 @@ import Onboarding from "./pages/Onboarding";
 import Plan from "./pages/Plan";
 import PrintPage from "./pages/Print";
 import Profile from "./pages/Profile";
+import Admin from "./pages/Admin";
 import RequireAuth from "./components/auth/RequireAuth";
 
 const queryClient = new QueryClient();
@@ -53,6 +54,16 @@ const App = () => (
                 <RequireAuth>
                   <AppLayout>
                     <Profile />
+                  </AppLayout>
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <RequireAuth>
+                  <AppLayout>
+                    <Admin />
                   </AppLayout>
                 </RequireAuth>
               }

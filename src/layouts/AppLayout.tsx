@@ -1,17 +1,20 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, ListChecks, User } from "lucide-react";
+import { CalendarDays, ListChecks, User, Settings } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const path = location.pathname;
+  const { isAdmin } = useAuth();
 
   const titles: Record<string, string> = {
     "/": "Início",
     "/plan": "Plano alimentar",
     "/onboarding": "Preferências",
     "/profile": "Perfil",
+    "/admin": "Administração",
     "/print": "Imprimir",
   };
   const title = titles[path] || "Plano alimentar";
@@ -23,7 +26,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   const LeftIcon = goLeft.Icon;
 
   const rightBtn = path === "/profile"
-    ? { to: "/plan", aria: "Plano", Icon: CalendarDays }
+    ? (isAdmin ? { to: "/admin", aria: "Admin", Icon: Settings } : { to: "/plan", aria: "Plano", Icon: CalendarDays })
+    : path === "/admin"
+    ? { to: "/profile", aria: "Perfil", Icon: User }
     : { to: "/profile", aria: "Perfil", Icon: User };
   const RightIcon = rightBtn.Icon;
 

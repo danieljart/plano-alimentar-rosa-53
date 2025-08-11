@@ -1,5 +1,6 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LogOut, User, CalendarDays, ListChecks } from "lucide-react";
+import { LogOut, User, CalendarDays, ListChecks, Settings } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import {
   Sidebar,
   SidebarContent,
@@ -17,15 +18,22 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 
-const items = [
+const baseItems = [
   { title: "Plano Alimentar", url: "/plan", icon: CalendarDays },
   { title: "Preferências", url: "/onboarding", icon: ListChecks },
   { title: "Perfil", url: "/profile", icon: User },
 ];
 
+const adminItems = [
+  { title: "Administração", url: "/admin", icon: Settings },
+];
+
 export function AppSidebar() {
   const { state, setOpen, setOpenMobile, isMobile } = useSidebar();
   const location = useLocation();
+  const { isAdmin, signOut } = useAuth();
+  
+  const items = isAdmin ? [...baseItems, ...adminItems] : baseItems;
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     isActive
       ? "bg-card text-accent-foreground font-medium"
@@ -75,10 +83,11 @@ export function AppSidebar() {
           className="justify-start"
           onClick={async () => {
             try {
-              localStorage.removeItem("authEmail");
               localStorage.removeItem("onboardingPrefs");
-            } finally {
-              window.location.href = "/login";
+              localStorage.removeItem("gemini_api_key");
+              await signOut();
+            } catch (error) {
+              console.error('Error signing out:', error);
             }
           }}
         >
