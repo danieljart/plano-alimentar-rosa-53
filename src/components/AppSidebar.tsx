@@ -24,7 +24,7 @@ const items = [
 ];
 
 export function AppSidebar() {
-  const { state } = useSidebar();
+  const { state, setOpen, setOpenMobile, isMobile } = useSidebar();
   const location = useLocation();
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     isActive
@@ -34,7 +34,13 @@ export function AppSidebar() {
   const showPrint = location.pathname === "/plan";
   const currentDay = (typeof window !== "undefined" && localStorage.getItem("planCurrentDay")) || "Seg";
   const printHref = `/print?dia=${currentDay}`;
-
+  const handleNavigate = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    } else {
+      setOpen(false);
+    }
+  };
   return (
     <Sidebar className="">
       <SidebarHeader className="relative border-b bg-card">
@@ -53,7 +59,7 @@ export function AppSidebar() {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink to={item.url} end className={getNavCls}>
+                    <NavLink to={item.url} end className={getNavCls} onClick={handleNavigate}>
                       <item.icon className="mr-2 h-4 w-4 text-current" />
                       {state === "expanded" && <span>{item.title}</span>}
                     </NavLink>
@@ -64,7 +70,7 @@ export function AppSidebar() {
               {showPrint && (
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <NavLink to={printHref} className={getNavCls({ isActive: location.pathname === "/print" })}>
+                    <NavLink to={printHref} className={getNavCls({ isActive: location.pathname === "/print" })} onClick={handleNavigate}>
                       <Printer className="mr-2 h-4 w-4 text-current" />
                       {state === "expanded" && <span>Imprimir plano do dia</span>}
                     </NavLink>

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import GeminiChat from "@/components/GeminiChat";
 import { askGemini } from "@/lib/gemini";
-import { PieChart, Pie, Cell, Tooltip as ReTooltip, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell, Tooltip as ReTooltip, ResponsiveContainer, LabelList } from "recharts";
 import { FoodItem } from "@/data/foods";
 import { generateWeek, generateDay, portionLabel } from "@/lib/plan/generator";
 import { toast } from "sonner";
@@ -124,31 +124,54 @@ export default function Plan() {
       {current && (
         <div className="space-y-3">
           {dayData && (
-            <Card className="rounded-xl border bg-card shadow-[var(--shadow-elegant)]">
+            <Card className="rounded-xl border bg-card shadow-[var(--shadow-elegant)] animate-fade-in">
               <CardHeader>
                 <CardTitle>Resumo do dia</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-                  <div className="h-48">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="h-40 w-full max-w-sm">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
-                        <Pie data={[{name: 'Proteínas', value: dayData.totalProtein},{name:'Carboidratos', value: dayData.totalCarb},{name:'Gorduras', value: dayData.totalFat}]} dataKey="value" nameKey="name" label>
+                        <Pie
+                          data={[
+                            { name: "Proteínas", value: dayData.totalProtein },
+                            { name: "Carboidratos", value: dayData.totalCarb },
+                            { name: "Gorduras", value: dayData.totalFat },
+                          ]}
+                          dataKey="value"
+                          nameKey="name"
+                          labelLine={false}
+                        >
                           <Cell fill="hsl(var(--primary))" />
                           <Cell fill="hsl(var(--secondary))" />
                           <Cell fill="hsl(var(--accent))" />
+                          <LabelList dataKey="value" position="inside" fill="#ffffff" />
                         </Pie>
                         <ReTooltip />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
-                  <div className="space-y-1">
-                    <div className="text-sm text-muted-foreground">Calorias totais</div>
-                    <div className="text-2xl font-semibold">{dayData.totalKcal} kcal</div>
-                    {prefs && (<div className="text-sm">Meta: {prefs.caloriasDiarias} kcal</div>)}
-                    <div className="text-sm">Proteínas: {dayData.totalProtein} g</div>
-                    <div className="text-sm">Carboidratos: {dayData.totalCarb} g</div>
-                    <div className="text-sm">Gorduras: {dayData.totalFat} g</div>
+
+                  <div className="flex items-center justify-center gap-6 text-sm">
+                    <div className="flex items-center gap-2">
+                      <span className="size-3 rounded-full" style={{ background: "hsl(var(--primary))" }} />
+                      <span>Proteínas: {dayData.totalProtein} g</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="size-3 rounded-full" style={{ background: "hsl(var(--secondary))" }} />
+                      <span>Carboidratos: {dayData.totalCarb} g</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="size-3 rounded-full" style={{ background: "hsl(var(--accent))" }} />
+                      <span>Gorduras: {dayData.totalFat} g</span>
+                    </div>
+                  </div>
+
+                  <div className="text-center space-y-1">
+                    <div className="text-lg font-semibold">Calorias totais</div>
+                    <div className="text-2xl font-bold tabular-nums">{dayData.totalKcal} kcal</div>
+                    {prefs && <div className="text-sm text-muted-foreground">Meta: {prefs.caloriasDiarias} kcal</div>}
                   </div>
                 </div>
               </CardContent>
@@ -162,7 +185,7 @@ export default function Plan() {
             {(dayPlan || current).refeicoes.map((meal, idx) => {
               const val = `item-${idx}`;
               return (
-                <AccordionItem ref={(el) => (itemRefs.current[val] = el)} key={val} value={val} className="scroll-mt-24 rounded-xl border bg-card shadow-[var(--shadow-elegant)]">
+                <AccordionItem ref={(el) => (itemRefs.current[val] = el)} key={val} value={val} className="scroll-mt-24 rounded-xl border bg-card shadow-[var(--shadow-elegant)] animate-fade-in">
                   <AccordionTrigger className="px-4 py-3">
                     <div className="flex items-center gap-3 w-full">
                       <img src={meal.image} alt={`${meal.nome} foto ilustrativa`} className="h-10 w-14 object-cover rounded" loading="lazy" />

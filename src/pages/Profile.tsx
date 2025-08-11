@@ -28,19 +28,6 @@ export default function Profile() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Integrações</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-3 sm:max-w-md">
-          <div>
-            <Label htmlFor="gemini">Google Gemini API Key</Label>
-            <Input id="gemini" placeholder="Insira sua chave com segurança (backend)" disabled />
-            <p className="text-xs text-muted-foreground mt-1">Por segurança, a chave nunca será armazenada no cliente. Implementaremos via backend seguro.</p>
-          </div>
-          <Button disabled variant="outline">Salvar (em breve)</Button>
-        </CardContent>
-      </Card>
     </div>
   );
 }
