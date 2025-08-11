@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
+
 import { Label } from "@/components/ui/label";
 import { FOODS, FoodItem } from "@/data/foods";
 import { toast } from "sonner";
@@ -29,7 +29,7 @@ const categoryIconMap = {
   "Proteínas (Animais)": Drumstick,
   "Carboidratos": Wheat,
   "Legumes & Verduras": Leaf,
-  "Leguminosas": Beans,
+  "Leguminosas": Bean,
   "Frutas": Apple,
   "Gorduras & Complementos": Utensils,
   "Laticínios": Milk,
@@ -54,6 +54,8 @@ useEffect(() => {
 }, []);
 
   const byCat = useMemo(() => groupByCategory(FOODS), []);
+  const [openCat, setOpenCat] = useState<string | undefined>(undefined);
+  const itemRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const toggleGosta = (id: string) => {
     setGosta((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
@@ -81,17 +83,13 @@ const handleSave = () => {
 };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-24">
       <Helmet>
         <title>Onboarding | Plano alimentar rosa</title>
         <meta name="description" content="Defina calorias, preferências e restrições para seu plano alimentar" />
         <link rel="canonical" href={window.location.href} />
       </Helmet>
 
-      <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Suas preferências</h1>
-        <Button variant="hero" onClick={handleSave} className="hover-scale">Salvar e continuar</Button>
-      </header>
 
 <Card className="shadow-[var(--shadow-elegant)]">
   <CardHeader>
@@ -113,19 +111,22 @@ const handleSave = () => {
     <CardTitle>Alimentos que você gosta (mín. 3)</CardTitle>
   </CardHeader>
   <CardContent className="space-y-3">
-    <Accordion type="single" collapsible className="w-full">
+    <Accordion type="single" collapsible className="w-full" value={openCat} onValueChange={(v) => {
+          setOpenCat(v);
+          if (v) {
+            setTimeout(() => itemRefs.current[v!]?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+          }
+        }}>
       {Object.entries(byCat).map(([cat, items], idx) => (
-        <AccordionItem key={cat} value={`cat-${idx}`}>
+        <AccordionItem ref={(el) => (itemRefs.current[`cat-${idx}`] = el)} key={cat} value={`cat-${idx}`} className="scroll-mt-24">
           <AccordionTrigger className="px-2 py-2 text-left font-semibold text-primary"><span className="inline-flex items-center gap-2">{(() => { const Icon = getIcon(cat as FoodItem["categoria"]); return <Icon size={16} className="text-primary" />; })()} {cat}</span></AccordionTrigger>
           <AccordionContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {items.map((f) => (
-                <label key={f.id} className={`flex items-center gap-3 rounded-md border p-3 transition-colors ${gosta.includes(f.id) ? "border-primary bg-primary/5" : "hover:bg-secondary/50"}`}>
-                  <Checkbox checked={gosta.includes(f.id)} onCheckedChange={() => toggleGosta(f.id)} />
-                  {(() => { const Icon = getIcon(f.categoria); return <Icon size={16} className="text-primary" />; })()}
+                <div key={f.id} role="button" onClick={() => toggleGosta(f.id)} className={`flex items-center gap-3 rounded-md border p-3 transition-colors cursor-pointer ${gosta.includes(f.id) ? "bg-accent text-accent-foreground border-accent" : "hover:bg-secondary/50"}`}>
                   <div className="flex-1">
                     <div className="text-sm font-medium">{f.nome}</div>
-                    <div className="text-xs text-muted-foreground">
+                    <div className={`text-xs ${gosta.includes(f.id) ? "" : "text-muted-foreground"}`}>
                       {f.price_label} {f.affordable_flag ? "• acessível" : ""}
                     </div>
                   </div>
@@ -134,7 +135,7 @@ const handleSave = () => {
                       <img src={f.image_url} alt={f.alt} className="h-full w-full object-cover" loading="lazy" />
                     </AspectRatio>
                   </div>
-                </label>
+                </div>
               ))}
             </div>
           </AccordionContent>
@@ -144,9 +145,9 @@ const handleSave = () => {
   </CardContent>
 </Card>
 
-<div className="flex items-center justify-end gap-3">
-  <p className="text-xs text-primary">Sem estresse: você pode ajustar depois.</p>
-  <Button variant="hero" size="lg" onClick={handleSave} className="hover-scale">Salvar e continuar</Button>
+<div className="sticky bottom-0 left-0 right-0 border-t bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-3 flex items-center justify-between gap-3">
+  <p className="text-xs text-primary px-2">Sem estresse: você pode ajustar depois.</p>
+  <Button variant="hero" size="lg" onClick={handleSave} className="hover-scale mr-2">Salvar e continuar</Button>
 </div>
     </div>
   );

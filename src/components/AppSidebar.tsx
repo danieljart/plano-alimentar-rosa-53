@@ -29,16 +29,18 @@ export function AppSidebar() {
   const location = useLocation();
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     isActive
-      ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-      : "hover:bg-sidebar-accent/70";
+      ? "bg-accent text-accent-foreground font-medium"
+      : "text-accent hover:bg-accent/20";
 
   return (
     <Sidebar className="">
-      <SidebarHeader className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm font-semibold">
-          <span>Menu</span>
+      <SidebarHeader className="relative border-b bg-accent/15">
+        <div className="absolute inset-0 flex items-center justify-center text-accent font-semibold">
+          Menu
         </div>
-        <SidebarTrigger />
+        <div className="flex items-center justify-end">
+          <SidebarTrigger className="text-accent" />
+        </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
@@ -49,7 +51,7 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} end className={getNavCls}>
-                      <item.icon className="mr-2 h-4 w-4" />
+                      <item.icon className="mr-2 h-4 w-4 text-current" />
                       {state === "expanded" && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
@@ -60,7 +62,7 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarSeparator />
-      <SidebarFooter>
+      <SidebarFooter className="bg-accent/15 border-t">
         <Button
           variant="outline"
           className="justify-start"
