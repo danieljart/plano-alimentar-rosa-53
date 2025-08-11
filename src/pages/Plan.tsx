@@ -92,7 +92,7 @@ export default function Plan() {
             {(dayPlan || current).refeicoes.map((meal, idx) => {
               const val = `item-${idx}`;
               return (
-                <AccordionItem ref={(el) => (itemRefs.current[val] = el)} key={val} value={val} className="scroll-mt-24 border rounded-md bg-card/30">
+                <AccordionItem ref={(el) => (itemRefs.current[val] = el)} key={val} value={val} className="scroll-mt-24 rounded-xl border bg-card shadow-[var(--shadow-elegant)]">
                   <AccordionTrigger className="px-4 py-3">
                     <div className="flex items-center gap-3 w-full">
                       <img src={meal.image} alt={`${meal.nome} foto ilustrativa`} className="h-10 w-14 object-cover rounded" loading="lazy" />
