@@ -28,6 +28,27 @@ export default function Profile() {
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader>
+          <CardTitle>Sessão</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Button
+            variant="destructive"
+            onClick={async () => {
+              try {
+                localStorage.removeItem("authEmail");
+                localStorage.removeItem("onboardingPrefs");
+              } finally {
+                window.location.href = "/login";
+              }
+            }}
+          >
+            Sair da conta
+          </Button>
+        </CardContent>
+      </Card>
+
     </div>
   );
 }

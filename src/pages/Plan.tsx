@@ -131,8 +131,8 @@ export default function Plan() {
                 <CardTitle className="text-2xl">Resumo do dia</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid items-center gap-4 md:grid-cols-[160px_1fr]">
-                  <div className="h-32 w-full animate-fade-in">
+                <div className="grid grid-cols-[120px_1fr] items-center gap-3 md:grid-cols-[160px_1fr]">
+                  <div className="h-28 md:h-32 w-full animate-fade-in">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
@@ -162,14 +162,14 @@ export default function Plan() {
                     </div>
                   </div>
                 </div>
-                <div className="mt-3 flex items-center gap-6">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">Calorias totais:</span>
+                <div className="mt-3 grid grid-cols-2 gap-3 sm:gap-6">
+                  <div className="flex flex-col">
+                    <span className="text-xs font-medium">Calorias totais</span>
                     <JackpotNumber value={dayData.totalKcal} />
                   </div>
                   {prefs && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">Meta</span>
+                    <div className="flex flex-col">
+                      <span className="text-xs font-medium">Meta calórica</span>
                       <JackpotNumber value={prefs.caloriasDiarias} size="sm" />
                     </div>
                   )}
