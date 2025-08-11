@@ -245,6 +245,7 @@ export default function Plan() {
                         </DialogContent>
                       </Dialog>
                     </div>
+                    </div>
                     <ul className="list-disc pl-5 text-sm space-y-1">
                       {meal.itens.map((i) => (
                         <li key={i.id}>{i.nome} — {portionLabel(i)}</li>
