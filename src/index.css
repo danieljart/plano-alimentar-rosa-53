@@ -62,6 +62,12 @@ All colors MUST be HSL.
     --shadow-elegant: 0 12px 30px -12px hsl(var(--primary) / 0.25);
     --shadow-glow: 0 0 40px hsl(var(--secondary) / 0.35);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Chart tokens */
+    --chart-protein: var(--primary);
+    --chart-carb: var(--secondary);
+    --chart-fat: 348 100% 65%; /* #FF4D6D */
+    --chart-on-fat: 347 100% 97%; /* #FFF0F3 */
   }
 
   .dark {
@@ -139,4 +145,10 @@ All colors MUST be HSL.
 
   .hover-scale { @apply transition-transform duration-200 hover:scale-105; }
   .pulse { @apply animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]; }
+
+  /* Chart helper classes */
+  .bg-chart-protein { background-color: hsl(var(--chart-protein)); }
+  .bg-chart-carb { background-color: hsl(var(--chart-carb)); }
+  .bg-chart-fat { background-color: hsl(var(--chart-fat)); }
+  .text-chart-on-fat { color: hsl(var(--chart-on-fat)); }
 }

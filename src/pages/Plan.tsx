@@ -128,40 +128,51 @@ export default function Plan() {
           {dayData && (
             <Card className="rounded-xl border bg-card shadow-[var(--shadow-elegant)] animate-fade-in">
               <CardHeader>
-                <CardTitle>Resumo do dia</CardTitle>
+                <CardTitle className="text-2xl">Resumo do dia</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid items-center gap-4 md:grid-cols-[180px_1fr]">
-                  <div className="h-36 w-full animate-fade-in">
+                <div className="grid items-center gap-4 md:grid-cols-[160px_1fr]">
+                  <div className="h-32 w-full animate-fade-in">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
-                        <Pie data={[{ name: "Proteínas", value: dayData.totalProtein }, { name: "Carboidratos", value: dayData.totalCarb }, { name: "Gorduras", value: dayData.totalFat }]} dataKey="value" nameKey="name" labelLine={false}>
-                          <Cell fill="hsl(var(--primary))" />
-                          <Cell fill="hsl(var(--secondary))" />
-                          <Cell fill="hsl(var(--accent))" />
-                          <LabelList dataKey="value" position="inside" fill="#ffffff" />
+                        <Pie
+                          data={[
+                            { name: "Proteínas", value: dayData.totalProtein },
+                            { name: "Carboidratos", value: dayData.totalCarb },
+                            { name: "Gorduras", value: dayData.totalFat },
+                          ]}
+                          dataKey="value"
+                          nameKey="name"
+                          labelLine={false}
+                        >
+                          <Cell fill="hsl(var(--chart-protein))" />
+                          <Cell fill="hsl(var(--chart-carb))" />
+                          <Cell fill="hsl(var(--chart-fat))" />
+                          <LabelList dataKey="value" position="inside" fill="hsl(var(--chart-on-fat))" />
                         </Pie>
                         <ReTooltip />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
-                  <div className="space-y-3 animate-fade-in">
-                    <div className="flex flex-wrap items-center gap-4 text-sm">
-                      <div className="flex items-center gap-2"><span className="size-3 rounded-full bg-primary" /><span>Proteínas: {dayData.totalProtein} g</span></div>
-                      <div className="flex items-center gap-2"><span className="size-3 rounded-full bg-secondary" /><span>Carboidratos: {dayData.totalCarb} g</span></div>
-                      <div className="flex items-center gap-2"><span className="size-3 rounded-full bg-accent" /><span>Gorduras: {dayData.totalFat} g</span></div>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-3">
-                      <span className="text-sm font-medium">Calorias totais:</span>
-                      <JackpotNumber value={dayData.totalKcal} />
-                      {prefs && (
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <span className="text-xs">Meta</span>
-                          <JackpotNumber value={prefs.caloriasDiarias} size="sm" />
-                        </div>
-                      )}
+                  <div className="space-y-2 animate-fade-in">
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center gap-2"><span className="size-3 rounded-full bg-chart-protein" /><span>Proteínas: {dayData.totalProtein} g</span></div>
+                      <div className="flex items-center gap-2"><span className="size-3 rounded-full bg-chart-carb" /><span>Carboidratos: {dayData.totalCarb} g</span></div>
+                      <div className="flex items-center gap-2"><span className="size-3 rounded-full bg-chart-fat" /><span>Gorduras: {dayData.totalFat} g</span></div>
                     </div>
                   </div>
+                </div>
+                <div className="mt-3 flex items-center gap-6">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">Calorias totais:</span>
+                    <JackpotNumber value={dayData.totalKcal} />
+                  </div>
+                  {prefs && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium">Meta</span>
+                      <JackpotNumber value={prefs.caloriasDiarias} size="sm" />
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
