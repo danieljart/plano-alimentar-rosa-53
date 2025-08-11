@@ -154,8 +154,8 @@ export default function Plan() {
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
-                  <div className="space-y-2 animate-fade-in">
-                    <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm">
+                  <div className="animate-fade-in">
+                    <div className="flex flex-col gap-1.5 text-xs sm:text-sm">
                       <div className="flex items-center gap-2"><span className="size-3 rounded-full bg-chart-protein" /><span>Proteínas: {dayData.totalProtein} g</span></div>
                       <div className="flex items-center gap-2"><span className="size-3 rounded-full bg-chart-carb" /><span>Carbo: {dayData.totalCarb} g</span></div>
                       <div className="flex items-center gap-2"><span className="size-3 rounded-full bg-chart-fat" /><span>Gorduras: {dayData.totalFat} g</span></div>
