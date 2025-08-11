@@ -2,10 +2,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+
 import { Button } from "@/components/ui/button";
-import { FOODS, FoodItem } from "@/data/foods";
-import { generateWeek, portionLabel } from "@/lib/plan/generator";
+import { FoodItem } from "@/data/foods";
+import { generateWeek, generateDay, portionLabel } from "@/lib/plan/generator";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 
@@ -39,6 +40,8 @@ export default function Plan() {
   const [openItem, setOpenItem] = useState<string | undefined>(undefined);
   const itemRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const [dayPlan, setDayPlan] = useState<DayPlan | null>(null);
+  const [mealModalIdx, setMealModalIdx] = useState<number | null>(null);
+  const [mealSuggestions, setMealSuggestions] = useState<Meal[]>([]);
 
   useEffect(() => {
     const p = localStorage.getItem("onboardingPrefs");
@@ -88,7 +91,7 @@ export default function Plan() {
           <Accordion type="single" collapsible value={openItem} onValueChange={(v) => {
             setOpenItem(v);
             if (v) setTimeout(() => itemRefs.current[v!]?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
-          }} className="w-full">
+          }} className="w-full space-y-3">
             {(dayPlan || current).refeicoes.map((meal, idx) => {
               const val = `item-${idx}`;
               return (
@@ -103,27 +106,74 @@ export default function Plan() {
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pb-4">
-                    <ul className="list-disc pl-5 text-sm space-y-1">
-                      {meal.itens.map((i, itx) => (
-                        <li key={i.id} className="space-y-1">
-                          <div>{i.nome} — {portionLabel(i)}</div>
-                          <div className="text-xs text-muted-foreground flex flex-wrap gap-2">
-                            <span>Substituir por:</span>
-                            {FOODS.filter(f => f.categoria === i.categoria && f.id !== i.id).slice(0,3).map(alt => (
-                              <button
-                                key={alt.id}
-                                className="px-2 py-0.5 rounded border bg-background hover:bg-card transition"
-                                onClick={() => {
-                                  setDayPlan(prev => {
-                                    if (!prev) return prev;
-                                    const clone = { ...prev, refeicoes: prev.refeicoes.map((m, mi) => mi === idx ? { ...m, itens: m.itens.map((it, ii) => (ii === itx ? alt : it)) } : m) };
-                                    return clone as any;
-                                  });
-                                }}
-                              >{alt.nome}</button>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="text-xs text-muted-foreground">{meal.calorias} kcal</div>
+                      <Dialog open={mealModalIdx === idx} onOpenChange={(o)=> { if (!o) { setMealModalIdx(null); setMealSuggestions([]); } }}>
+                        <DialogTrigger asChild>
+                          <Button size="sm" variant="outline" onClick={(e)=> {
+                            e.stopPropagation();
+                            if (!prefs || !current) return;
+                            const alts: Meal[] = [];
+                            const seen = new Set<string>();
+                            const targetName = meal.nome;
+                            let tries = 0;
+                            while (alts.length < 3 && tries < 12) {
+                              tries++;
+                              const newDay = generateDay(prefs.caloriasDiarias, prefs.gostaIds, current.dia);
+                              const mNew = newDay.refeicoes.find(r => r.nome === targetName);
+                              if (!mNew) continue;
+                              const sig = mNew.itens.map(i => i.id).join("|");
+                              if (sig !== meal.itens.map(i => i.id).join("|") && !seen.has(sig)) {
+                                seen.add(sig);
+                                alts.push(mNew);
+                              }
+                            }
+                            setMealSuggestions(alts);
+                            setMealModalIdx(idx);
+                          }}>Trocar refeição</Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Trocar {meal.nome}</DialogTitle>
+                            <DialogDescription>Escolha um prato completo equivalente (±10% kcal).</DialogDescription>
+                          </DialogHeader>
+                          <div className="grid gap-2">
+                            {mealSuggestions.map((mAlt, ai) => (
+                              <button key={ai} className="text-left p-3 rounded-md border hover:bg-card focus:outline-none" onClick={() => {
+                                setDayPlan(prev => {
+                                  if (!prev) return prev;
+                                  const newRef = prev.refeicoes.map((m, mi) => mi === idx ? mAlt : m);
+                                  return { ...prev, refeicoes: newRef } as any;
+                                });
+                                setMealModalIdx(null);
+                                setMealSuggestions([]);
+                                toast("Refeição trocada");
+                              }}>
+                                <div className="flex items-center gap-2 mb-1">
+                                  <img src={mAlt.image} alt={`${mAlt.nome} sugestão`} className="h-10 w-14 object-cover rounded" />
+                                  <div className="font-medium">{mAlt.hora} — {mAlt.nome}</div>
+                                  <div className="ml-auto text-xs text-muted-foreground">{mAlt.calorias} kcal</div>
+                                </div>
+                                <ul className="text-xs list-disc pl-4">
+                                  {mAlt.itens.map((i) => (
+                                    <li key={i.id}>{i.nome} — {portionLabel(i)}</li>
+                                  ))}
+                                </ul>
+                              </button>
                             ))}
+                            {mealSuggestions.length === 0 && (
+                              <div className="text-sm text-muted-foreground">Gerando sugestões...</div>
+                            )}
                           </div>
-                        </li>
+                          <DialogFooter>
+                            <Button variant="secondary" onClick={() => { setMealModalIdx(null); setMealSuggestions([]); }}>Cancelar</Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                    <ul className="list-disc pl-5 text-sm space-y-1">
+                      {meal.itens.map((i) => (
+                        <li key={i.id}>{i.nome} — {portionLabel(i)}</li>
                       ))}
                     </ul>
                   </AccordionContent>
