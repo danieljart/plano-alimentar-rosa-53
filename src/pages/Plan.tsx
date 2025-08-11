@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import GeminiChat from "@/components/GeminiChat";
 import JackpotNumber from "@/components/JackpotNumber";
 import { askGemini } from "@/lib/gemini";
-import { PieChart, Pie, Cell, Tooltip as ReTooltip, ResponsiveContainer, LabelList } from "recharts";
+import { PieChart, Pie, Cell, Tooltip as ReTooltip, ResponsiveContainer } from "recharts";
 import { FoodItem } from "@/data/foods";
 import { generateWeek, generateDay, portionLabel } from "@/lib/plan/generator";
 import { toast } from "sonner";
@@ -128,7 +128,7 @@ export default function Plan() {
           {dayData && (
             <Card className="rounded-xl border bg-card shadow-[var(--shadow-elegant)] animate-fade-in">
               <CardHeader>
-                <CardTitle className="text-2xl">Resumo do dia</CardTitle>
+                <CardTitle className="text-xl">Resumo do dia</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-[120px_1fr] items-center gap-3 md:grid-cols-[160px_1fr]">
@@ -148,16 +148,16 @@ export default function Plan() {
                           <Cell fill="hsl(var(--chart-protein))" />
                           <Cell fill="hsl(var(--chart-carb))" />
                           <Cell fill="hsl(var(--chart-fat))" />
-                          <LabelList dataKey="value" position="inside" fill="hsl(var(--chart-on-fat))" />
+                          
                         </Pie>
                         <ReTooltip />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
                   <div className="space-y-2 animate-fade-in">
-                    <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm">
                       <div className="flex items-center gap-2"><span className="size-3 rounded-full bg-chart-protein" /><span>Proteínas: {dayData.totalProtein} g</span></div>
-                      <div className="flex items-center gap-2"><span className="size-3 rounded-full bg-chart-carb" /><span>Carboidratos: {dayData.totalCarb} g</span></div>
+                      <div className="flex items-center gap-2"><span className="size-3 rounded-full bg-chart-carb" /><span>Carbo: {dayData.totalCarb} g</span></div>
                       <div className="flex items-center gap-2"><span className="size-3 rounded-full bg-chart-fat" /><span>Gorduras: {dayData.totalFat} g</span></div>
                     </div>
                   </div>
@@ -170,7 +170,7 @@ export default function Plan() {
                   {prefs && (
                     <div className="flex flex-col">
                       <span className="text-xs font-medium">Meta calórica</span>
-                      <JackpotNumber value={prefs.caloriasDiarias} size="sm" />
+                      <JackpotNumber value={prefs.caloriasDiarias} />
                     </div>
                   )}
                 </div>

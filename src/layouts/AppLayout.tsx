@@ -22,6 +22,11 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     : { to: "/onboarding", label: "Preferências", Icon: ListChecks };
   const LeftIcon = goLeft.Icon;
 
+  const rightBtn = path === "/profile"
+    ? { to: "/plan", aria: "Plano", Icon: CalendarDays }
+    : { to: "/profile", aria: "Perfil", Icon: User };
+  const RightIcon = rightBtn.Icon;
+
   return (
     <div className="min-h-screen flex w-full">
       <div className="flex-1">
@@ -37,9 +42,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
           <div className="text-base md:text-lg font-semibold select-none">{title}</div>
 
-          <Link to="/profile" aria-label="Perfil" className="hover-scale">
-            <Button size="icon" variant="secondary" className="shadow-sm">
-              <User />
+          <Link to={rightBtn.to} aria-label={rightBtn.aria} className="hover-scale">
+            <Button size="icon" variant="default" className="shadow-sm">
+              <RightIcon />
             </Button>
           </Link>
         </header>
