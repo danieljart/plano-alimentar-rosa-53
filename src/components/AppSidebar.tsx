@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LogOut, User, Settings, Printer, CalendarDays, ListChecks } from "lucide-react";
+import { LogOut, User, CalendarDays, ListChecks } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -31,9 +31,6 @@ export function AppSidebar() {
       ? "bg-card text-accent-foreground font-medium"
       : "text-accent-foreground hover:bg-card";
 
-  const showPrint = location.pathname === "/plan";
-  const currentDay = (typeof window !== "undefined" && localStorage.getItem("planCurrentDay")) || "Seg";
-  const printHref = `/print?dia=${currentDay}`;
   const handleNavigate = () => {
     if (isMobile) {
       setOpenMobile(false);
@@ -67,16 +64,6 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               ))}
 
-              {showPrint && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <NavLink to={printHref} className={getNavCls({ isActive: location.pathname === "/print" })} onClick={handleNavigate}>
-                      <Printer className="mr-2 h-4 w-4 text-current" />
-                      {state === "expanded" && <span>Imprimir plano do dia</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

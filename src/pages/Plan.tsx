@@ -7,12 +7,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import GeminiChat from "@/components/GeminiChat";
+import JackpotNumber from "@/components/JackpotNumber";
 import { askGemini } from "@/lib/gemini";
 import { PieChart, Pie, Cell, Tooltip as ReTooltip, ResponsiveContainer, LabelList } from "recharts";
 import { FoodItem } from "@/data/foods";
 import { generateWeek, generateDay, portionLabel } from "@/lib/plan/generator";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
+import { Bot, Printer } from "lucide-react";
 
 type Meal = {
   nome: string;
@@ -129,20 +131,11 @@ export default function Plan() {
                 <CardTitle>Resumo do dia</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex flex-col items-center gap-4">
-                  <div className="h-40 w-full max-w-sm">
+                <div className="grid items-center gap-4 md:grid-cols-[180px_1fr]">
+                  <div className="h-36 w-full animate-fade-in">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
-                        <Pie
-                          data={[
-                            { name: "Proteínas", value: dayData.totalProtein },
-                            { name: "Carboidratos", value: dayData.totalCarb },
-                            { name: "Gorduras", value: dayData.totalFat },
-                          ]}
-                          dataKey="value"
-                          nameKey="name"
-                          labelLine={false}
-                        >
+                        <Pie data={[{ name: "Proteínas", value: dayData.totalProtein }, { name: "Carboidratos", value: dayData.totalCarb }, { name: "Gorduras", value: dayData.totalFat }]} dataKey="value" nameKey="name" labelLine={false}>
                           <Cell fill="hsl(var(--primary))" />
                           <Cell fill="hsl(var(--secondary))" />
                           <Cell fill="hsl(var(--accent))" />
@@ -152,26 +145,22 @@ export default function Plan() {
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
-
-                  <div className="flex items-center justify-center gap-6 text-sm">
-                    <div className="flex items-center gap-2">
-                      <span className="size-3 rounded-full" style={{ background: "hsl(var(--primary))" }} />
-                      <span>Proteínas: {dayData.totalProtein} g</span>
+                  <div className="space-y-3 animate-fade-in">
+                    <div className="flex flex-wrap items-center gap-4 text-sm">
+                      <div className="flex items-center gap-2"><span className="size-3 rounded-full bg-primary" /><span>Proteínas: {dayData.totalProtein} g</span></div>
+                      <div className="flex items-center gap-2"><span className="size-3 rounded-full bg-secondary" /><span>Carboidratos: {dayData.totalCarb} g</span></div>
+                      <div className="flex items-center gap-2"><span className="size-3 rounded-full bg-accent" /><span>Gorduras: {dayData.totalFat} g</span></div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="size-3 rounded-full" style={{ background: "hsl(var(--secondary))" }} />
-                      <span>Carboidratos: {dayData.totalCarb} g</span>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <span className="text-sm font-medium">Calorias totais:</span>
+                      <JackpotNumber value={dayData.totalKcal} />
+                      {prefs && (
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <span className="text-xs">Meta</span>
+                          <JackpotNumber value={prefs.caloriasDiarias} size="sm" />
+                        </div>
+                      )}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="size-3 rounded-full" style={{ background: "hsl(var(--accent))" }} />
-                      <span>Gorduras: {dayData.totalFat} g</span>
-                    </div>
-                  </div>
-
-                  <div className="text-center space-y-1">
-                    <div className="text-lg font-semibold">Calorias totais</div>
-                    <div className="text-2xl font-bold tabular-nums">{dayData.totalKcal} kcal</div>
-                    {prefs && <div className="text-sm text-muted-foreground">Meta: {prefs.caloriasDiarias} kcal</div>}
                   </div>
                 </div>
               </CardContent>
@@ -199,12 +188,14 @@ export default function Plan() {
                     <div className="flex items-center justify-between mb-2">
                       <div className="text-xs text-muted-foreground">{meal.calorias} kcal</div>
                       <div className="flex items-center gap-2">
-                        <Button size="sm" variant="secondary" onClick={(e)=>{
+                        <Button size="icon" variant="secondary" className="hover-scale" aria-label="Perguntar IA" onClick={(e)=>{
                           e.stopPropagation();
                           const p = `me dê mais informações sobre ${meal.nome} com ${meal.itens.map(i=>`${i.nome} — ${portionLabel(i)}`).join(", ")}`;
                           setGeminiPrompt(p);
                           setGeminiOpen(true);
-                        }}>Perguntar ao Gemini</Button>
+                        }}>
+                          <Bot />
+                        </Button>
                         <Dialog open={mealModalIdx === idx} onOpenChange={(o)=> { if (!o) { setMealModalIdx(null); setMealSuggestions([]); } }}>
                           <DialogTrigger asChild>
                             <Button size="sm" variant="outline" onClick={(e)=> {
@@ -282,8 +273,15 @@ export default function Plan() {
 
           {/* Dicas do dia (Gemini) */}
           <Card className="rounded-xl border bg-card shadow-[var(--shadow-elegant)]">
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Dicas de planejamento</CardTitle>
+              <div className="flex items-center gap-2">
+                <Button size="icon" variant="outline" asChild className="hover-scale" aria-label="Imprimir plano do dia">
+                  <Link to={`/print?dia=${(dayPlan || current)?.dia || tab}`}>
+                    <Printer />
+                  </Link>
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               {tipsLoading ? (
