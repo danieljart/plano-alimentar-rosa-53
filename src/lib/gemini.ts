@@ -1,12 +1,31 @@
-// Simple Gemini client for frontend-only usage
-// NOTE: For production, prefer routing via a Supabase Edge Function with the API key stored in Supabase Secrets.
+import { supabase } from "@/integrations/supabase/client";
 
 export async function askGemini(prompt: string): Promise<string> {
-  const apiKey = localStorage.getItem("gemini_api_key");
-  if (!apiKey) {
-    return "Gemini não está configurado. Adicione sua chave em localStorage (gemini_api_key) ou peça para conectarmos via Supabase Secrets.";
-  }
   try {
+    // First try the Supabase Edge Function (secure server-side)
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (session) {
+      const { data, error } = await supabase.functions.invoke('gemini-chat', {
+        body: { prompt },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (!error && data?.text) {
+        return data.text;
+      }
+      
+      console.log('Edge function not available or failed, trying local key...');
+    }
+
+    // Fallback to local API key
+    const apiKey = localStorage.getItem("gemini_api_key");
+    if (!apiKey) {
+      return "Gemini não está configurado. Configure no perfil ou peça ao admin para configurar no servidor.";
+    }
+
     const res = await fetch(
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + encodeURIComponent(apiKey),
       {
@@ -26,15 +45,17 @@ export async function askGemini(prompt: string): Promise<string> {
         }),
       }
     );
+
     if (!res.ok) {
       const txt = await res.text();
       throw new Error(`Gemini API error: ${res.status} ${txt}`);
     }
+
     const data = await res.json();
     const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
     return text || "Sem resposta no momento.";
   } catch (e: any) {
     console.error(e);
-    return "Não foi possível obter resposta do Gemini agora. Verifique sua chave e tente novamente.";
+    return "Não foi possível obter resposta do Gemini agora. Verifique a configuração.";
   }
 }

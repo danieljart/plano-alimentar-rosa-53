@@ -5,28 +5,51 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [mode, setMode] = useState<"login" | "signup">("login");
+  const [loading, setLoading] = useState(false);
+  const { user, signIn, signUp } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const existing = localStorage.getItem("authEmail");
-    if (existing) window.location.href = "/plan";
-  }, []);
+    if (user) {
+      const hasPrefs = !!localStorage.getItem("onboardingPrefs");
+      navigate(hasPrefs ? "/plan" : "/onboarding");
+    }
+  }, [user, navigate]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
       toast.error("Preencha e-mail e senha");
       return;
     }
-    // Placeholder de autenticação local. Substituir por Supabase.
-    localStorage.setItem("authEmail", email);
-    toast.success(mode === "login" ? "Bem-vinda de volta!" : "Conta criada com sucesso!");
-    const hasPrefs = !!localStorage.getItem("onboardingPrefs");
-    window.location.href = hasPrefs ? "/plan" : "/onboarding";
+
+    setLoading(true);
+    try {
+      let result;
+      if (mode === "login") {
+        result = await signIn(email, password);
+      } else {
+        result = await signUp(email, password, displayName);
+      }
+
+      if (result.error) {
+        toast.error(result.error.message);
+      } else {
+        toast.success(mode === "login" ? "Bem-vinda de volta!" : "Conta criada! Verifique seu e-mail para confirmar.");
+      }
+    } catch (error) {
+      toast.error("Erro inesperado. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -47,12 +70,18 @@ export default function Login() {
               <Label htmlFor="email">E-mail</Label>
               <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
+            {mode === "signup" && (
+              <div className="space-y-1">
+                <Label htmlFor="name">Nome (opcional)</Label>
+                <Input id="name" type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+              </div>
+            )}
             <div className="space-y-1">
               <Label htmlFor="pass">Senha</Label>
               <Input id="pass" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
             </div>
-            <Button type="submit" variant="hero" className="w-full hover-scale">
-              {mode === "login" ? "Entrar" : "Criar conta"}
+            <Button type="submit" variant="hero" className="w-full hover-scale" disabled={loading}>
+              {loading ? "Aguarde..." : (mode === "login" ? "Entrar" : "Criar conta")}
             </Button>
             <Button type="button" variant="subtle" className="w-full" onClick={() => setMode(mode === "login" ? "signup" : "login") }>
               {mode === "login" ? "Não tem conta? Criar" : "Já tem conta? Entrar"}
