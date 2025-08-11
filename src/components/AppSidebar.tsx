@@ -29,17 +29,17 @@ export function AppSidebar() {
   const location = useLocation();
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     isActive
-      ? "bg-accent text-accent-foreground font-medium"
-      : "text-accent hover:bg-accent/20";
+      ? "bg-card text-accent-foreground font-medium"
+      : "text-accent-foreground hover:bg-card";
 
   return (
     <Sidebar className="">
-      <SidebarHeader className="relative border-b bg-accent/15">
-        <div className="absolute inset-0 flex items-center justify-center text-accent font-semibold">
+      <SidebarHeader className="relative border-b bg-card">
+        <div className="absolute inset-0 pointer-events-none flex items-center justify-center text-accent-foreground font-semibold">
           Menu
         </div>
         <div className="flex items-center justify-end">
-          <SidebarTrigger className="text-accent" />
+          <SidebarTrigger className="text-accent-foreground" />
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -62,7 +62,7 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarSeparator />
-      <SidebarFooter className="bg-accent/15 border-t">
+      <SidebarFooter className="bg-card border-t">
         <Button
           variant="outline"
           className="justify-start"

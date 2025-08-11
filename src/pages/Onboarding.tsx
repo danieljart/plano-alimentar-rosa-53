@@ -80,14 +80,14 @@ export default function Onboarding() {
 
 
     <Card className="shadow-[var(--shadow-elegant)]">
-  <CardHeader className="bg-rose-100">
-    <CardTitle className="text-rose-900">Calorias diárias</CardTitle>
+  <CardHeader className="bg-card">
+    <CardTitle className="text-primary">Calorias diárias</CardTitle>
   </CardHeader>
-  <CardContent className="grid gap-4 sm:grid-cols-2 bg-rose-100">
+  <CardContent className="grid gap-4 sm:grid-cols-2 bg-card">
     <div className="sm:col-span-2">
       <Label htmlFor="kcal" className="bg-transparent">Calorias diárias (kcal)</Label>
       <Input id="kcal" type="number" min={1000} max={4000} value={calorias} onChange={e => setCalorias(Number(e.target.value))} />
-      <p className="text-xs mt-1 text-rose-800">Distribuição padrão: 20/10/30/10/25/5</p>
+      <p className="text-xs mt-1 text-accent-foreground">Distribuição padrão: 20/10/30/10/25/5</p>
     </div>
   </CardContent>
     </Card>
@@ -95,7 +95,7 @@ export default function Onboarding() {
 
     <Card className="shadow-[var(--shadow-elegant)]">
   <CardHeader>
-    <CardTitle>Alimentos que você gosta (mín. 3)</CardTitle>
+    <CardTitle className="text-primary">Alimentos que você gosta (mín. 3)</CardTitle>
   </CardHeader>
   <CardContent className="space-y-3">
     <Accordion type="single" collapsible className="w-full" value={openCat} onValueChange={v => {
@@ -108,16 +108,16 @@ export default function Onboarding() {
           }
         }}>
       {Object.entries(byCat).map(([cat, items], idx) => <AccordionItem ref={el => itemRefs.current[`cat-${idx}`] = el} key={cat} value={`cat-${idx}`} className="scroll-mt-24">
-          <AccordionTrigger className="px-2 py-2 text-left font-semibold text-primary"><span className="inline-flex items-center gap-2">{(() => {
+          <AccordionTrigger className="px-2 py-2 text-left font-semibold text-accent-foreground"><span className="inline-flex items-center gap-2">{(() => {
                   const Icon = getIcon(cat as FoodItem["categoria"]);
-                  return <Icon size={16} className="text-primary" />;
+                  return <Icon size={16} className="text-accent-foreground" />;
                 })()} {cat}</span></AccordionTrigger>
           <AccordionContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {items.map(f => <div key={f.id} role="button" onClick={() => toggleGosta(f.id)} className={`flex items-center gap-3 rounded-md border p-3 transition-colors cursor-pointer ${gosta.includes(f.id) ? "bg-accent text-accent-foreground border-accent" : "hover:bg-secondary/50"}`}>
+              {items.map(f => <div key={f.id} role="button" onClick={() => toggleGosta(f.id)} className={`flex items-center gap-3 rounded-md border p-3 transition-colors cursor-pointer ${gosta.includes(f.id) ? "bg-secondary text-secondary-foreground border-transparent" : "bg-background text-accent-foreground border-accent/30 hover:bg-card"}`}>
                   <div className="flex-1">
                     <div className="text-sm font-medium">{f.nome}</div>
-                    <div className={`text-xs ${gosta.includes(f.id) ? "" : "text-muted-foreground"}`}>
+                    <div className={`text-xs ${gosta.includes(f.id) ? "opacity-90" : "text-muted-foreground"}`}>
                       {f.price_label} {f.affordable_flag ? "• acessível" : ""}
                     </div>
                   </div>

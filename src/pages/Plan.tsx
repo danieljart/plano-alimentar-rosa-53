@@ -213,8 +213,7 @@ export default function Plan() {
         <link rel="canonical" href={window.location.href} />
       </Helmet>
 
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Seu plano</h1>
+      <div className="flex items-center justify-end">
         <div className="flex items-center gap-2">
           <Link to={`/print?dia=${tab}`}><Button variant="outline">Imprimir</Button></Link>
           <Link to="/onboarding"><Button variant="subtle">Editar preferências</Button></Link>

@@ -11,9 +11,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       <div className="min-h-screen flex w-full">
         <AppSidebar />
         <SidebarInset>
-          <header className="relative h-14 flex items-center px-3 border-b bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <SidebarTrigger className="absolute left-3" />
-            <div className="mx-auto text-sm font-semibold">
+          <header className="relative h-14 flex items-center px-3 border-b bg-card">
+            <SidebarTrigger className="absolute left-3 text-accent-foreground" />
+            <div className="mx-auto text-sm font-semibold text-primary">
               {(() => {
                 const path = location.pathname;
                 const titles: Record<string, string> = {

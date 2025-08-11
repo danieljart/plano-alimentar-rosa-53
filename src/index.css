@@ -8,54 +8,59 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Rosa moderno com bom contraste */
-    --background: 0 0% 100%;
-    --foreground: 240 10% 4%;
+    /* Paleta personalizada do cliente */
+    /* Fundo geral */
+    --background: 346 100% 97%; /* #FFF0F3 */
+    --foreground: 342 81% 28%; /* #800F2F para textos padrão */
 
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 4%;
+    /* Quadros (cards) */
+    --card: 345 100% 90%; /* #FFCCD5 */
+    --card-foreground: 342 81% 28%; /* #800F2F */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 4%;
+    --popover: 346 100% 97%;
+    --popover-foreground: 342 81% 28%;
 
-    /* Primária rosa (brand) */
-    --primary: 335 80% 45%;
-    --primary-foreground: 0 0% 100%;
+    /* Títulos */
+    --primary: 342 76% 20%; /* #590D22 */
+    --primary-foreground: 346 100% 97%; /* #FFF0F3 */
 
-    --secondary: 330 30% 96%;
-    --secondary-foreground: 335 80% 26%;
+    /* Seleção (itens escolhidos) */
+    --secondary: 343 76% 45%; /* #C9184A */
+    --secondary-foreground: 346 100% 97%; /* #FFF0F3 */
 
-    --muted: 300 20% 96%;
-    --muted-foreground: 250 8% 40%;
+    /* Suportes */
+    --muted: 346 60% 96%;
+    --muted-foreground: 343 77% 36%; /* #A4133C */
 
-    --accent: 335 80% 96%;
-    --accent-foreground: 335 70% 35%;
+    /* Acento para ícones e nomes de categorias */
+    --accent: 345 100% 90%; /* usar rosa bebê como superfície de acento */
+    --accent-foreground: 342 81% 28%; /* #800F2F */
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 300 14% 90%;
-    --input: 300 14% 90%;
-    --ring: 335 80% 45%;
+    --border: 345 40% 85%;
+    --input: 345 40% 85%;
+    --ring: 343 76% 45%;
 
     --radius: 0.75rem;
 
-    /* Sidebar tokens */
-    --sidebar-background: 330 30% 98%;
-    --sidebar-foreground: 335 30% 20%;
-    --sidebar-primary: 335 80% 45%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 330 30% 95%;
-    --sidebar-accent-foreground: 335 30% 20%;
-    --sidebar-border: 330 20% 90%;
-    --sidebar-ring: 335 80% 45%;
+    /* Sidebar tokens alinhados à paleta */
+    --sidebar-background: 346 100% 97%;
+    --sidebar-foreground: 342 81% 28%;
+    --sidebar-primary: 342 76% 20%;
+    --sidebar-primary-foreground: 346 100% 97%;
+    --sidebar-accent: 345 100% 90%;
+    --sidebar-accent-foreground: 342 81% 28%;
+    --sidebar-border: 345 40% 85%;
+    --sidebar-ring: 343 76% 45%;
 
     /* Gradients & shadows */
-    --primary-glow: 335 90% 55%;
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
-    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%), hsl(330 30% 98%));
+    --primary-glow: 342 76% 35%;
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(var(--card)));
     --shadow-elegant: 0 12px 30px -12px hsl(var(--primary) / 0.25);
-    --shadow-glow: 0 0 40px hsl(var(--primary-glow) / 0.35);
+    --shadow-glow: 0 0 40px hsl(var(--secondary) / 0.35);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
