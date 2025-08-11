@@ -11,9 +11,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       <div className="min-h-screen flex w-full">
         <AppSidebar />
         <SidebarInset>
-          <header className="relative h-14 flex items-center px-3 border-b bg-card">
-            <SidebarTrigger className="absolute left-3 text-accent-foreground" />
-            <div className="mx-auto text-sm font-semibold text-primary">
+          <header className="relative h-14 flex items-center px-3 border-b text-primary-foreground" style={{ background: "var(--gradient-primary)" }}>
+            <SidebarTrigger className="absolute left-3 text-primary-foreground" />
+            <div className="mx-auto text-base md:text-lg font-semibold text-primary-foreground select-none">
               {(() => {
                 const path = location.pathname;
                 const titles: Record<string, string> = {

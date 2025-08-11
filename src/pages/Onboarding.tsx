@@ -34,6 +34,32 @@ const categoryIconMap = {
 } as const;
 type CatKey = keyof typeof categoryIconMap;
 const getIcon = (categoria: FoodItem["categoria"]) => categoryIconMap[categoria as CatKey] || Utensils;
+
+function getItemDesc(f: FoodItem) {
+  if (f.categoria === "Proteínas (Animais)") {
+    if (f.id === "proteina_bovina") return "Cortes econômicos e magros: patinho, coxão mole, lagarto";
+    if (f.id === "proteina_frango") return "Cortes econômicos e magros: peito, sobrecoxa sem pele";
+    if (f.id === "proteina_porco") return "Cortes econômicos e magros: lombo, pernil magro";
+    if (f.id === "proteina_ovos") return "Opções em conta: cozido, mexido com pouco óleo";
+    return "Cortes de baixo teor calórico e custo";
+  }
+  if (f.categoria === "Carboidratos") {
+    const muitoRapido = ["carb_pao_integral", "carb_tapioca", "carb_aveia", "carb_cuscuz"];
+    const rapido = ["carb_macarrao_integral", "carb_ervilha", "carb_lentilha", "carb_farofa"]; // ids de leguminosas não estão aqui, ajustaremos abaixo
+    if (muitoRapido.includes(f.id)) return "Preparo: muito rápido";
+    if (rapido.includes(f.id)) return "Preparo: rápido";
+    return "Preparo: médio";
+  }
+  if (f.categoria === "Leguminosas") {
+    const rapido = ["legum_ervilha", "legum_lentilha"]; // geralmente cozinham mais rápido
+    if (rapido.includes(f.id)) return "Preparo: rápido";
+    return "Preparo: médio";
+  }
+  // Demais categorias: nível calórico
+  const kcal = f.calorias_por_porção;
+  const nivel = kcal <= 60 ? "Baixo" : kcal <= 150 ? "Médio" : "Alto";
+  return `Nível calórico: ${nivel}`;
+}
 export default function Onboarding() {
   const [calorias, setCalorias] = useState<number>(1800);
   const [gosta, setGosta] = useState<string[]>([]);
@@ -79,23 +105,23 @@ export default function Onboarding() {
       </Helmet>
 
 
-    <Card className="shadow-[var(--shadow-elegant)]">
-  <CardHeader className="bg-card">
+    <Card className="shadow-[var(--shadow-elegant)] rounded-xl">
+  <CardHeader className="bg-card rounded-t-xl">
     <CardTitle className="text-primary">Calorias diárias</CardTitle>
   </CardHeader>
-  <CardContent className="grid gap-4 sm:grid-cols-2 bg-card">
+  <CardContent className="grid gap-4 sm:grid-cols-2">
     <div className="sm:col-span-2">
       <Label htmlFor="kcal" className="bg-transparent">Calorias diárias (kcal)</Label>
       <Input id="kcal" type="number" min={1000} max={4000} value={calorias} onChange={e => setCalorias(Number(e.target.value))} />
-      <p className="text-xs mt-1 text-accent-foreground">Distribuição padrão: 20/10/30/10/25/5</p>
     </div>
   </CardContent>
     </Card>
 
 
-    <Card className="shadow-[var(--shadow-elegant)]">
-  <CardHeader>
-    <CardTitle className="text-primary">Alimentos que você gosta (mín. 3)</CardTitle>
+    <Card className="shadow-[var(--shadow-elegant)] rounded-xl">
+  <CardHeader className="rounded-t-xl">
+    <CardTitle className="text-primary text-base sm:text-lg truncate">Alimentos que você gosta</CardTitle>
+    <p className="text-xs text-muted-foreground">Mínimo 3 por categoria</p>
   </CardHeader>
   <CardContent className="space-y-3">
     <Accordion type="single" collapsible className="w-full" value={openCat} onValueChange={v => {
@@ -118,7 +144,7 @@ export default function Onboarding() {
                   <div className="flex-1">
                     <div className="text-sm font-medium">{f.nome}</div>
                     <div className={`text-xs ${gosta.includes(f.id) ? "opacity-90" : "text-muted-foreground"}`}>
-                      {f.price_label} {f.affordable_flag ? "• acessível" : ""}
+                      {getItemDesc(f)}
                     </div>
                   </div>
                   <div className="w-20 rounded overflow-hidden">

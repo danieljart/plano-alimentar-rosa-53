@@ -21,7 +21,6 @@ const items = [
   { title: "Plano Alimentar", url: "/plan", icon: CalendarDays },
   { title: "Preferências", url: "/onboarding", icon: ListChecks },
   { title: "Perfil", url: "/profile", icon: User },
-  { title: "Imprimir", url: "/print", icon: Printer },
 ];
 
 export function AppSidebar() {
@@ -31,6 +30,10 @@ export function AppSidebar() {
     isActive
       ? "bg-card text-accent-foreground font-medium"
       : "text-accent-foreground hover:bg-card";
+
+  const showPrint = location.pathname === "/plan";
+  const currentDay = (typeof window !== "undefined" && localStorage.getItem("planCurrentDay")) || "Seg";
+  const printHref = `/print?dia=${currentDay}`;
 
   return (
     <Sidebar className="">
@@ -57,6 +60,17 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+
+              {showPrint && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <NavLink to={printHref} className={getNavCls({ isActive: location.pathname === "/print" })}>
+                      <Printer className="mr-2 h-4 w-4 text-current" />
+                      {state === "expanded" && <span>Imprimir plano do dia</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
