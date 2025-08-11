@@ -255,6 +255,27 @@ export default function Plan() {
               );
             })}
           </Accordion>
+
+          {/* Dicas do dia (Gemini) */}
+          <Card className="rounded-xl border bg-card shadow-[var(--shadow-elegant)]">
+            <CardHeader>
+              <CardTitle>Dicas de planejamento</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {tipsLoading ? (
+                <div className="text-sm text-muted-foreground">Gerando dicas...</div>
+              ) : (
+                <div className="prose prose-sm max-w-none whitespace-pre-wrap">{tips || ""}</div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Janela de chat arredondada */}
+          <Dialog open={geminiOpen} onOpenChange={setGeminiOpen}>
+            <DialogContent className="rounded-xl p-0">
+              <GeminiChat initialPrompt={geminiPrompt} />
+            </DialogContent>
+          </Dialog>
         </div>
       )}
     </div>
