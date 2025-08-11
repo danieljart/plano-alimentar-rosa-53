@@ -31,7 +31,10 @@ function byCat(pool: FoodItem[], categoria: FoodItem["categoria"]) { return pool
 function poolFromPrefs(gostaIds: string[]) {
   const liked = FOODS.filter(f => gostaIds.includes(f.id));
   const affordable = FOODS.filter(f => f.affordable_flag);
-  return liked.length >= 6 ? liked : Array.from(new Set([...liked, ...affordable]));
+  const base = liked.length >= 6 ? liked : Array.from(new Set([...liked, ...affordable]));
+  // Remover temperos/itens indesejados (ex.: alho, cebola, azeite, limão)
+  const exclude = new Set(["veg_alho", "veg_cebola", "gord_azeite", "fruta_limao"]);
+  return base.filter(f => !exclude.has(f.id));
 }
 
 // Helpers to constrain choices by meal
@@ -95,11 +98,14 @@ export function generateDay(total: number, gostaIds: string[], dia: string, avoi
   const toast = FOODS.find(i => i.id === "snack_torradas_integral");
   const colacaoItens = [fruit, (Math.random() < 0.5 ? yogurt : toast)].filter(Boolean) as FoodItem[];
 
-  // Almoço
+  // Almoço — regras: 1 proteína (animal), 1 carbo, 1 leguminosa (feijões) e 1 legume/verdura escolhidos pelo usuário quando possível
   const protAlmoco = chooseProtein(pool, avoidProteinId);
   const carbAlmoco = pick(byCat(pool, "Carboidratos").filter(isLunchCarb));
-  const salada = chooseMany(byCat(pool, "Legumes & Verduras"), 2);
-  const almocoItens = [protAlmoco, carbAlmoco, ...salada].filter(Boolean) as FoodItem[];
+  const likedLegum = FOODS.filter(f => gostaIds.includes(f.id) && f.categoria === "Leguminosas");
+  const likedVeg = FOODS.filter(f => gostaIds.includes(f.id) && f.categoria === "Legumes & Verduras");
+  const leguminosa = pick(likedLegum.length ? likedLegum : byCat(pool, "Leguminosas"));
+  const legume = pick(likedVeg.length ? likedVeg : byCat(pool, "Legumes & Verduras"));
+  const almocoItens = [protAlmoco, carbAlmoco, leguminosa, legume].filter(Boolean) as FoodItem[];
 
   // Lanche: iogurte + fruta OU aveia + fruta
   const aveia = FOODS.find(i => i.id === "carb_aveia");

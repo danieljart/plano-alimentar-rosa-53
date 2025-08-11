@@ -5,6 +5,10 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import GeminiChat from "@/components/GeminiChat";
+import { askGemini } from "@/lib/gemini";
+import { PieChart, Pie, Cell, Tooltip as ReTooltip, ResponsiveContainer } from "recharts";
 import { FoodItem } from "@/data/foods";
 import { generateWeek, generateDay, portionLabel } from "@/lib/plan/generator";
 import { toast } from "sonner";
@@ -42,7 +46,10 @@ export default function Plan() {
   const [dayPlan, setDayPlan] = useState<DayPlan | null>(null);
   const [mealModalIdx, setMealModalIdx] = useState<number | null>(null);
   const [mealSuggestions, setMealSuggestions] = useState<Meal[]>([]);
-
+  const [geminiOpen, setGeminiOpen] = useState(false);
+  const [geminiPrompt, setGeminiPrompt] = useState("");
+  const [tips, setTips] = useState<string>("");
+  const [tipsLoading, setTipsLoading] = useState(false);
   useEffect(() => {
     const p = localStorage.getItem("onboardingPrefs");
     if (!p) {
@@ -69,6 +76,28 @@ export default function Plan() {
     }
   }, [current, tab]);
 
+  const dayData = useMemo(() => {
+    const d = (dayPlan || current);
+    if (!d) return null as any;
+    const items = d.refeicoes.flatMap((m) => m.itens);
+    const totalProtein = Math.round(items.reduce((a, i) => a + (i["proteína_g"] || 0), 0));
+    const totalCarb = Math.round(items.reduce((a, i) => a + (i["carboidrato_g"] || 0), 0));
+    const totalFat = Math.round(items.reduce((a, i) => a + (i["gordura_g"] || 0), 0));
+    const totalKcal = d.refeicoes.reduce((a, m) => a + (m.calorias || 0), 0);
+    return { totalProtein, totalCarb, totalFat, totalKcal };
+  }, [dayPlan, current]);
+
+  useEffect(() => {
+    const d = (dayPlan || current);
+    if (!d) return;
+    setTipsLoading(true);
+    const desc = d.refeicoes
+      .map((m) => `${m.nome}: ${m.itens.map((i) => `${i.nome} (${portionLabel(i)})`).join(", ")}`)
+      .join(" | ");
+    const prompt = `Com base nessas refeições do dia: ${desc}. Considere a rotina de alguém buscando praticidade e proteína animal. Dê 3-5 dicas de planejamento, substituições e ideias de pratos relacionados aos itens do dia.`;
+    askGemini(prompt).then((t) => setTips(t)).finally(() => setTipsLoading(false));
+  }, [dayPlan, current]);
+
   return (
     <div className="space-y-4">
       <Helmet>
@@ -81,13 +110,51 @@ export default function Plan() {
       <Tabs value={tab} onValueChange={(v) => { setTab(v); localStorage.setItem("planCurrentDay", v); setOpenItem(undefined); }} className="w-full">
         <TabsList className="grid grid-cols-7">
           {diasSemana.map((d) => (
-            <TabsTrigger key={d} value={d}>{d}</TabsTrigger>
+            <TabsTrigger
+              key={d}
+              value={d}
+              className="data-[state=active]:text-primary-foreground data-[state=active]:[background:var(--gradient-primary)] data-[state=active]:shadow-[var(--shadow-glow)] data-[state=active]:border-transparent"
+            >
+              {d}
+            </TabsTrigger>
           ))}
         </TabsList>
       </Tabs>
 
       {current && (
         <div className="space-y-3">
+          {dayData && (
+            <Card className="rounded-xl border bg-card shadow-[var(--shadow-elegant)]">
+              <CardHeader>
+                <CardTitle>Resumo do dia</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                  <div className="h-48">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie data={[{name: 'Proteínas', value: dayData.totalProtein},{name:'Carboidratos', value: dayData.totalCarb},{name:'Gorduras', value: dayData.totalFat}]} dataKey="value" nameKey="name" label>
+                          <Cell fill="hsl(var(--primary))" />
+                          <Cell fill="hsl(var(--secondary))" />
+                          <Cell fill="hsl(var(--accent))" />
+                        </Pie>
+                        <ReTooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="text-sm text-muted-foreground">Calorias totais</div>
+                    <div className="text-2xl font-semibold">{dayData.totalKcal} kcal</div>
+                    {prefs && (<div className="text-sm">Meta: {prefs.caloriasDiarias} kcal</div>)}
+                    <div className="text-sm">Proteínas: {dayData.totalProtein} g</div>
+                    <div className="text-sm">Carboidratos: {dayData.totalCarb} g</div>
+                    <div className="text-sm">Gorduras: {dayData.totalFat} g</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           <Accordion type="single" collapsible value={openItem} onValueChange={(v) => {
             setOpenItem(v);
             if (v) setTimeout(() => itemRefs.current[v!]?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
@@ -108,9 +175,16 @@ export default function Plan() {
                   <AccordionContent className="px-4 pb-4">
                     <div className="flex items-center justify-between mb-2">
                       <div className="text-xs text-muted-foreground">{meal.calorias} kcal</div>
-                      <Dialog open={mealModalIdx === idx} onOpenChange={(o)=> { if (!o) { setMealModalIdx(null); setMealSuggestions([]); } }}>
-                        <DialogTrigger asChild>
-                          <Button size="sm" variant="outline" onClick={(e)=> {
+                      <div className="flex items-center gap-2">
+                        <Button size="sm" variant="secondary" onClick={(e)=>{
+                          e.stopPropagation();
+                          const p = `me dê mais informações sobre ${meal.nome} com ${meal.itens.map(i=>`${i.nome} — ${portionLabel(i)}`).join(", ")}`;
+                          setGeminiPrompt(p);
+                          setGeminiOpen(true);
+                        }}>Perguntar ao Gemini</Button>
+                        <Dialog open={mealModalIdx === idx} onOpenChange={(o)=> { if (!o) { setMealModalIdx(null); setMealSuggestions([]); } }}>
+                          <DialogTrigger asChild>
+                            <Button size="sm" variant="outline" onClick={(e)=> {
                             e.stopPropagation();
                             if (!prefs || !current) return;
                             const alts: Meal[] = [];
