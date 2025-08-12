@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -14,15 +15,21 @@ export default function Login() {
   const [displayName, setDisplayName] = useState("");
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [loading, setLoading] = useState(false);
-  const { user, signIn, signUp } = useAuth();
+  const { user, signIn, signUp, isAdmin } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
+      const adminLogin = localStorage.getItem("adminLogin") === "1";
+      if (adminLogin || isAdmin) {
+        localStorage.removeItem("adminLogin");
+        navigate("/admin");
+        return;
+      }
       const hasPrefs = !!localStorage.getItem("onboardingPrefs");
       navigate(hasPrefs ? "/plan" : "/onboarding");
     }
-  }, [user, navigate]);
+  }, [user, isAdmin, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +40,27 @@ export default function Login() {
 
     setLoading(true);
     try {
+      // Admin fast-path: allow "admin"/"admin" or "admin@admin.com"/"admin"
+      const emailInput = email.trim().toLowerCase();
+      const adminEmail = "admin@admin.com";
+      const isAdminCreds =
+        (emailInput === "admin" || emailInput === adminEmail) &&
+        password === "admin";
+
+      if (mode === "login" && isAdminCreds) {
+        // Ensure admin user exists on the server (skip email verification)
+        await supabase.functions.invoke("seed-admin", { body: {} });
+        const { error } = await signIn(adminEmail, "admin");
+        if (error) {
+          toast.error(error.message);
+        } else {
+          localStorage.setItem("adminLogin", "1");
+          toast.success("Bem-vinda, admin!");
+          navigate("/admin");
+        }
+        return;
+      }
+
       let result;
       if (mode === "login") {
         result = await signIn(email, password);
@@ -51,7 +79,6 @@ export default function Login() {
       setLoading(false);
     }
   };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-secondary">
       <Helmet>
