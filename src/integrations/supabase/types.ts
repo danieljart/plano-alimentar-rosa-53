@@ -14,6 +14,171 @@ export type Database = {
   }
   public: {
     Tables: {
+      meal_items: {
+        Row: {
+          calories: number
+          carbs_g: number
+          category: string | null
+          created_at: string
+          fat_g: number
+          food_id: string
+          food_name: string
+          id: string
+          meal_id: string
+          protein_g: number
+          quantity: number | null
+          quantity_g: number | null
+          unit: string | null
+          updated_at: string
+        }
+        Insert: {
+          calories: number
+          carbs_g: number
+          category?: string | null
+          created_at?: string
+          fat_g: number
+          food_id: string
+          food_name: string
+          id?: string
+          meal_id: string
+          protein_g: number
+          quantity?: number | null
+          quantity_g?: number | null
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          calories?: number
+          carbs_g?: number
+          category?: string | null
+          created_at?: string
+          fat_g?: number
+          food_id?: string
+          food_name?: string
+          id?: string
+          meal_id?: string
+          protein_g?: number
+          quantity?: number | null
+          quantity_g?: number | null
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_items_meal_id_fkey"
+            columns: ["meal_id"]
+            isOneToOne: false
+            referencedRelation: "meals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meal_plan_days: {
+        Row: {
+          created_at: string
+          date: string | null
+          day_index: number
+          id: string
+          plan_id: string
+          total_kcal: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date?: string | null
+          day_index: number
+          id?: string
+          plan_id: string
+          total_kcal?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string | null
+          day_index?: number
+          id?: string
+          plan_id?: string
+          total_kcal?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_plan_days_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "meal_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meal_plans: {
+        Row: {
+          created_at: string
+          gosta_ids: string[]
+          id: string
+          total_kcal: number
+          updated_at: string
+          user_id: string
+          week_start: string
+        }
+        Insert: {
+          created_at?: string
+          gosta_ids?: string[]
+          id?: string
+          total_kcal: number
+          updated_at?: string
+          user_id: string
+          week_start: string
+        }
+        Update: {
+          created_at?: string
+          gosta_ids?: string[]
+          id?: string
+          total_kcal?: number
+          updated_at?: string
+          user_id?: string
+          week_start?: string
+        }
+        Relationships: []
+      }
+      meals: {
+        Row: {
+          calories: number
+          created_at: string
+          day_id: string
+          id: string
+          name: string
+          time: string
+          updated_at: string
+        }
+        Insert: {
+          calories?: number
+          created_at?: string
+          day_id: string
+          id?: string
+          name: string
+          time: string
+          updated_at?: string
+        }
+        Update: {
+          calories?: number
+          created_at?: string
+          day_id?: string
+          id?: string
+          name?: string
+          time?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meals_day_id_fkey"
+            columns: ["day_id"]
+            isOneToOne: false
+            referencedRelation: "meal_plan_days"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
