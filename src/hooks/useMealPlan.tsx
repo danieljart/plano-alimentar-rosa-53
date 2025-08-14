@@ -77,15 +77,13 @@ export function useMealPlan() {
         `)
         .eq('user_id', user.id)
         .eq('week_start', week)
-        .single();
+        .maybeSingle();
 
       if (planError) {
-        if (planError.code === 'PGRST116') {
-          // No plan found
-          setPlan(null);
-        } else {
-          throw planError;
-        }
+        throw planError;
+      } else if (!planData) {
+        // No plan found
+        setPlan(null);
       } else {
         // Transform data to match our interface
         const dayNames = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];

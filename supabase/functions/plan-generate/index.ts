@@ -88,7 +88,7 @@ REGRAS DE UNIDADES E PORÇÕES:
 - Demais alimentos: gramas apropriadas para a refeição
 
 TAREFA:
-Crie um plano semanal (7 dias) com ${total_kcal} kcal/dia. Para cada dia:
+Crie um plano semanal COMPLETO (7 dias: Segunda a Domingo) com ${total_kcal} kcal/dia. IMPORTANTE: Retorne os 7 dias da semana, variando as proteínas e alimentos entre os dias. Para cada dia:
 
 HORÁRIOS FIXOS:
 - Colação: 06:10
@@ -115,7 +115,7 @@ DIRETRIZES:
 6. Use as preferências do usuário quando possível
 7. Calcule nutrição exata baseada nas quantidades
 
-FORMATO DE RESPOSTA (JSON):
+FORMATO DE RESPOSTA (JSON) - DEVE CONTER OS 7 DIAS:
 {
   "days": [
     {
@@ -123,24 +123,66 @@ FORMATO DE RESPOSTA (JSON):
       "day_index": 0,
       "meals": [
         {
+          "name": "Colação",
+          "time": "06:10",
+          "items": [...]
+        },
+        {
           "name": "Café",
           "time": "08:20",
-          "items": [
-            {
-              "food_id": "carb_pao_integral",
-              "food_name": "Pão integral",
-              "category": "Carboidratos",
-              "unit": "2 fatias",
-              "quantity": 2,
-              "quantity_g": 60,
-              "calories": 148,
-              "protein_g": 7.8,
-              "carbs_g": 24.6,
-              "fat_g": 2.5
-            }
-          ]
+          "items": [...]
+        },
+        {
+          "name": "Almoço",
+          "time": "12:30",
+          "items": [...]
+        },
+        {
+          "name": "Lanche",
+          "time": "15:30",
+          "items": [...]
+        },
+        {
+          "name": "Jantar",
+          "time": "19:30",
+          "items": [...]
+        },
+        {
+          "name": "Ceia",
+          "time": "21:30",
+          "items": [...]
         }
       ]
+    },
+    {
+      "day_name": "Terça",
+      "day_index": 1,
+      "meals": [...]
+    },
+    {
+      "day_name": "Quarta",
+      "day_index": 2,
+      "meals": [...]
+    },
+    {
+      "day_name": "Quinta",
+      "day_index": 3,
+      "meals": [...]
+    },
+    {
+      "day_name": "Sexta",
+      "day_index": 4,
+      "meals": [...]
+    },
+    {
+      "day_name": "Sábado",
+      "day_index": 5,
+      "meals": [...]
+    },
+    {
+      "day_name": "Domingo",
+      "day_index": 6,
+      "meals": [...]
     }
   ]
 }
